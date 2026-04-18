@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LicenseForge • Key Generator</title>
+    <title>Nicotine • License Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
@@ -11,11 +11,26 @@
         let supabaseClient = null
         let currentKeys = []
 
+        const ALLOWED_URL = "https://mafafvjxkhtbyacpnswa.supabase.co"
+
         function initTailwind() {
-            tailwind.config = { content: [] }
+            tailwind.config = {
+                content: [],
+                theme: {
+                    extend: {
+                        colors: {
+                            nicotine: {
+                                500: '#22c55e',
+                                600: '#16a34a',
+                                700: '#15803d'
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        function generateLicenseKey(prefix = 'MYAPP-', segments = 4, segLength = 5) {
+        function generateLicenseKey(prefix = 'NIC-', segments = 4, segLength = 5) {
             const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
             let key = prefix.toUpperCase()
             for (let s = 0; s < segments; s++) {
@@ -29,49 +44,44 @@
             return key
         }
 
-        // === NEW: Parse expiration input (30d, 6m, 2y, 3600s, etc.) ===
         function parseExpiration(input) {
             if (!input || input.trim() === '' || input.trim() === '0') return null
-
             const str = input.trim().toLowerCase()
             const match = str.match(/^(\d+)([sdmy]?)$/)
             if (!match) return null
 
             const value = parseInt(match[1])
-            const unit = match[2] || 'd'   // default to days if no unit
-
+            const unit = match[2] || 'd'
             const now = new Date()
 
             switch (unit) {
-                case 's': // seconds
-                    now.setSeconds(now.getSeconds() + value)
-                    break
-                case 'd': // days
-                    now.setDate(now.getDate() + value)
-                    break
-                case 'm': // months
-                    now.setMonth(now.getMonth() + value)
-                    break
-                case 'y': // years
-                    now.setFullYear(now.getFullYear() + value)
-                    break
-                default:
-                    return null
+                case 's': now.setSeconds(now.getSeconds() + value); break
+                case 'd': now.setDate(now.getDate() + value); break
+                case 'm': now.setMonth(now.getMonth() + value); break
+                case 'y': now.setFullYear(now.getFullYear() + value); break
+                default: return null
             }
             return now.toISOString()
         }
 
         async function connectSupabase() {
-            const url = document.getElementById('supabase-url').value.trim()
+            const enteredUrl = document.getElementById('supabase-url').value.trim()
             const key = document.getElementById('supabase-key').value.trim()
 
-            if (!url || !key) {
-                showToast('Please enter Supabase URL and Anon Key', 'error')
+            if (enteredUrl !== ALLOWED_URL) {
+                showToast('❌ This tool only works with the official Nicotine Supabase project.', 'error')
+                return
+            }
+
+            if (!key) {
+                showToast('Please enter your Anon Key', 'error')
                 return
             }
 
             try {
-                supabaseClient = createClient(url, key)
+                supabaseClient = createClient(enteredUrl, key)
+
+                // Test connection
                 await supabaseClient.from('license_keys').select('count', { count: 'exact', head: true })
 
                 document.getElementById('connection-status').innerHTML = `
@@ -79,7 +89,8 @@
                         <span class="w-2 h-2 bg-emerald-400 rounded-full mr-1 animate-pulse"></span> Connected
                     </span>
                 `
-                showToast('Connected to Supabase!', 'success')
+
+                showToast('✅ Successfully connected to Nicotine database', 'success')
                 document.getElementById('connect-screen').classList.add('hidden')
                 document.getElementById('main-app').classList.remove('hidden')
                 await loadKeys()
@@ -92,7 +103,7 @@
             if (!supabaseClient) return
 
             const count = parseInt(document.getElementById('generate-count').value) || 10
-            const prefix = document.getElementById('key-prefix').value.trim() || 'MYAPP-'
+            const prefix = document.getElementById('key-prefix').value.trim() || 'NIC-'
             const segments = parseInt(document.getElementById('segments').value) || 4
             const segLength = parseInt(document.getElementById('seg-length').value) || 5
             const expirationInput = document.getElementById('expires-input').value.trim()
@@ -107,7 +118,7 @@
                     expires_at: expiresAt,
                     is_active: true,
                     hwid: hwid || null,
-                    metadata: { generated_by: 'LicenseForge', source: 'web-app' }
+                    metadata: { generated_by: 'Nicotine License Manager', source: 'web-app' }
                 })
             }
 
@@ -119,16 +130,15 @@
 
                 if (error) throw error
 
-                showToast(`${data.length} license keys created!`, 'success')
+                showToast(`${data.length} Nicotine license keys created!`, 'success')
                 await loadKeys()
 
-                // Show newly generated keys
                 const generatedList = document.getElementById('generated-list')
                 generatedList.innerHTML = data.map(k => `
                     <div class="flex justify-between items-center bg-zinc-900 p-3 rounded-xl border border-zinc-700">
                         <code class="font-mono text-emerald-400 text-sm break-all">${k.license_key}</code>
                         <button onclick="copyToClipboard('${k.license_key}')" 
-                                class="px-4 py-1 text-xs bg-emerald-500 hover:bg-emerald-600 rounded-lg transition">COPY</button>
+                                class="px-4 py-1 text-xs bg-emerald-500 hover:bg-emerald-600 rounded-lg">COPY</button>
                     </div>
                 `).join('')
             } catch (err) {
@@ -165,14 +175,14 @@
                 }
 
                 return `
-                    <tr class="border-b border-zinc-800 hover:bg-zinc-900/50 transition-colors">
+                    <tr class="border-b border-zinc-800 hover:bg-zinc-900/50">
                         <td class="px-6 py-4 font-mono text-sm">${key.license_key}</td>
                         <td class="px-6 py-4 text-sm text-zinc-400">${new Date(key.created_at).toLocaleDateString()}</td>
                         <td class="px-6 py-4 text-sm">${expireText}</td>
                         <td class="px-6 py-4 font-mono text-sm text-zinc-300">${key.hwid || '<span class="text-zinc-500">—</span>'}</td>
                         <td class="px-6 py-4">
                             <span onclick="toggleActive('${key.license_key}')" 
-                                  class="cursor-pointer inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${key.is_active 
+                                  class="cursor-pointer px-3 py-1 rounded-full text-xs font-medium ${key.is_active 
                                     ? 'bg-emerald-500/10 text-emerald-400' 
                                     : 'bg-red-500/10 text-red-400'}">
                                 ${key.is_active ? 'ACTIVE' : 'DISABLED'}
@@ -180,16 +190,16 @@
                         </td>
                         <td class="px-6 py-4 text-right space-x-2">
                             <button onclick="copyToClipboard('${key.license_key}')" 
-                                    class="px-4 py-2 text-sm bg-zinc-800 hover:bg-zinc-700 rounded-xl transition-colors">📋</button>
+                                    class="px-4 py-2 text-sm bg-zinc-800 hover:bg-zinc-700 rounded-xl">📋</button>
                             <button onclick="deleteKey('${key.license_key}')" 
-                                    class="px-4 py-2 text-sm bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-colors">🗑</button>
+                                    class="px-4 py-2 text-sm bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl">🗑</button>
                         </td>
                     </tr>
                 `
             }).join('')
 
             if (currentKeys.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-16 text-zinc-500">No keys yet. Generate some above.</td></tr>`
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-16 text-zinc-500">No license keys yet. Generate some above.</td></tr>`
             }
         }
 
@@ -211,13 +221,13 @@
                 showToast(`Key ${!data.is_active ? 'activated' : 'disabled'}`, 'success')
                 await loadKeys()
             } catch (err) {
-                showToast('Failed to update status', 'error')
+                showToast('Failed to update', 'error')
             }
         }
 
         async function deleteKey(licenseKey) {
             if (!supabaseClient) return
-            if (!confirm(`Delete this key permanently?\n\n${licenseKey}`)) return
+            if (!confirm(`Delete this Nicotine license key permanently?\n\n${licenseKey}`)) return
 
             try {
                 const { error } = await supabaseClient
@@ -229,16 +239,16 @@
                 showToast('Key deleted successfully', 'success')
                 await loadKeys()
             } catch (err) {
-                showToast('Failed to delete key: ' + err.message, 'error')
+                showToast('Failed to delete key', 'error')
             }
         }
 
         async function copyToClipboard(text) {
             try {
                 await navigator.clipboard.writeText(text)
-                showToast('✅ Copied to clipboard!', 'success')
+                showToast('✅ Copied to clipboard', 'success')
             } catch {
-                showToast('Failed to copy to clipboard', 'error')
+                showToast('Failed to copy', 'error')
             }
         }
 
@@ -268,11 +278,14 @@
 <body class="bg-zinc-950 text-white font-sans">
     <div class="min-h-screen">
         <!-- Header -->
-        <div class="border-b border-zinc-800 bg-zinc-900">
+        <div class="border-b border-zinc-800 bg-black">
             <div class="max-w-7xl mx-auto px-8 py-6 flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-2xl flex items-center justify-center text-2xl">🔑</div>
-                    <h1 class="text-3xl font-bold tracking-tighter">LicenseForge</h1>
+                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center text-2xl shadow-lg">🌿</div>
+                    <div>
+                        <h1 class="text-3xl font-bold tracking-tighter text-white">Nicotine</h1>
+                        <p class="text-xs text-emerald-400 -mt-1">License Manager</p>
+                    </div>
                 </div>
                 <div id="connection-status" class="text-sm"></div>
             </div>
@@ -280,23 +293,32 @@
 
         <!-- Connect Screen -->
         <div id="connect-screen" class="max-w-7xl mx-auto px-8 py-12">
-            <div class="max-w-md mx-auto bg-zinc-900 border border-zinc-700 rounded-3xl p-8">
-                <h2 class="text-2xl font-semibold mb-2">Connect to Supabase</h2>
-                <p class="text-zinc-400 mb-8">Enter your project details</p>
+            <div class="max-w-md mx-auto bg-zinc-900 border border-emerald-900/50 rounded-3xl p-10">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-emerald-500/10 rounded-3xl mb-4">
+                        🔑
+                    </div>
+                    <h2 class="text-2xl font-semibold">Nicotine License Manager</h2>
+                    <p class="text-zinc-400 mt-2">Internal Key Generation Tool</p>
+                </div>
+
                 <div class="space-y-6">
                     <div>
-                        <label class="block text-xs uppercase tracking-widest text-zinc-400 mb-2">Supabase URL</label>
-                        <input id="supabase-url" type="text" value="https://mafafvjxkhtbyacpnswa.supabase.co" 
-                               class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 font-mono text-sm">
+                        <label class="block text-xs uppercase tracking-widest text-zinc-400 mb-2">Supabase Project URL</label>
+                        <input id="supabase-url" type="text" 
+                               value="https://mafafvjxkhtbyacpnswa.supabase.co"
+                               readonly
+                               class="w-full bg-zinc-950 border border-emerald-800 rounded-2xl px-5 py-4 font-mono text-sm text-emerald-300">
                     </div>
                     <div>
                         <label class="block text-xs uppercase tracking-widest text-zinc-400 mb-2">Anon Key</label>
                         <input id="supabase-key" type="password" placeholder="Paste your anon key here"
-                               class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 font-mono text-sm">
+                               class="w-full bg-zinc-950 border border-emerald-800 rounded-2xl px-5 py-4 font-mono text-sm">
                     </div>
-                    <button id="connect-btn" 
-                            class="w-full bg-white text-zinc-900 font-semibold py-5 rounded-2xl text-lg hover:bg-emerald-400 transition-all active:scale-95">
-                        Connect to Supabase
+
+                    <button id="connect-btn"
+                            class="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-bold py-5 rounded-2xl text-lg transition-all active:scale-95">
+                        Connect to Nicotine Database
                     </button>
                 </div>
             </div>
@@ -307,62 +329,68 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
                 <!-- Generate Panel -->
-                <div class="lg:col-span-5 bg-zinc-900 border border-zinc-700 rounded-3xl p-8">
-                    <h2 class="text-xl font-semibold mb-6 flex items-center gap-2"><span>⚡</span> Generate Keys</h2>
-                    
+                <div class="lg:col-span-5 bg-zinc-900 border border-emerald-900/30 rounded-3xl p-8">
+                    <h2 class="text-xl font-semibold mb-6 flex items-center gap-2 text-emerald-400">
+                        ⚡ Generate Nicotine Keys
+                    </h2>
+
                     <div class="space-y-6">
+                        <!-- ... same form fields as before ... -->
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="text-xs uppercase text-zinc-400 mb-2 block">Number of keys</label>
-                                <input id="generate-count" type="number" value="10" class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-center text-2xl font-mono outline-none">
+                                <input id="generate-count" type="number" value="10" 
+                                       class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-center text-2xl font-mono">
                             </div>
                             <div>
                                 <label class="text-xs uppercase text-zinc-400 mb-2 block">Prefix</label>
-                                <input id="key-prefix" type="text" value="MYAPP-" class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 font-mono uppercase outline-none">
+                                <input id="key-prefix" type="text" value="NIC-" 
+                                       class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 font-mono uppercase">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="text-xs uppercase text-zinc-400 mb-2 block">Segments</label>
-                                <input id="segments" type="number" value="4" class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-center outline-none">
+                                <input id="segments" type="number" value="4" class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-center">
                             </div>
                             <div>
                                 <label class="text-xs uppercase text-zinc-400 mb-2 block">Chars per segment</label>
-                                <input id="seg-length" type="number" value="5" class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-center outline-none">
+                                <input id="seg-length" type="number" value="5" class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-center">
                             </div>
                         </div>
 
                         <div>
                             <label class="text-xs uppercase text-zinc-400 mb-2 block">Expiration (e.g. 30d, 6m, 2y, 3600s)</label>
-                            <input id="expires-input" type="text" placeholder="30d or 1y or 0 for never" 
-                                   class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 font-mono outline-none">
+                            <input id="expires-input" type="text" placeholder="30d or 1y or 0" 
+                                   class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 font-mono">
                         </div>
 
                         <div>
                             <label class="text-xs uppercase text-zinc-400 mb-2 block">HWID Lock (optional)</label>
-                            <input id="hwid-input" type="text" placeholder="e.g. 8F3A9B2C7D1E4A5F" 
-                                   class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 font-mono outline-none">
+                            <input id="hwid-input" type="text" placeholder="Hardware ID" 
+                                   class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 font-mono">
                         </div>
 
                         <button id="generate-btn"
-                                class="w-full mt-4 bg-gradient-to-r from-emerald-400 to-cyan-400 text-zinc-950 font-bold py-6 rounded-2xl text-xl hover:brightness-110 active:scale-95 transition-all">
-                            GENERATE &amp; SAVE KEYS
+                                class="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-bold py-6 rounded-2xl text-xl transition-all">
+                            GENERATE NICOTINE LICENSE KEYS
                         </button>
                     </div>
 
-                    <div class="mt-10">
-                        <p class="text-xs uppercase text-zinc-400 mb-3">Just Generated</p>
-                        <div id="generated-list" class="space-y-2 max-h-64 overflow-auto pr-2"></div>
+                    <div class="mt-8">
+                        <p class="text-xs uppercase text-zinc-400 mb-3">Recently Generated</p>
+                        <div id="generated-list" class="space-y-2 max-h-64 overflow-auto"></div>
                     </div>
                 </div>
 
                 <!-- Keys Table -->
-                <div class="lg:col-span-7 bg-zinc-900 border border-zinc-700 rounded-3xl p-8">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-semibold">All License Keys</h2>
-                        <button id="refresh-btn" class="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 px-6 py-3 rounded-2xl text-sm transition-colors">
-                            ⟳ Refresh List
+                <div class="lg:col-span-7 bg-zinc-900 border border-emerald-900/30 rounded-3xl p-8">
+                    <div class="flex justify-between mb-6">
+                        <h2 class="text-xl font-semibold">All Nicotine License Keys</h2>
+                        <button id="refresh-btn" 
+                                class="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 px-6 py-3 rounded-2xl text-sm">
+                            ⟳ Refresh
                         </button>
                     </div>
                     <div class="overflow-x-auto">
