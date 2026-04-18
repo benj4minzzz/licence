@@ -6,31 +6,18 @@
     <title>LicenseForge • Key Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="module">
-        // =============================================
-        // LICENSE KEY GENERATOR APP (Supabase)
-        // Single HTML file – just open in browser
-        // =============================================
-
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
         let supabaseClient = null
         let currentKeys = []
 
-        // Tailwind script initialization
         function initTailwind() {
-            tailwind.config = {
-                content: [],
-                theme: {
-                    extend: {}
-                }
-            }
+            tailwind.config = { content: [] }
         }
 
-        // Generate a single license key (MYAPP-XXXXX-XXXXX-XXXXX-XXXXX format)
         function generateLicenseKey(prefix = 'MYAPP-', segments = 4, segLength = 5) {
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789' // no 0,1,O,I to avoid confusion
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
             let key = prefix.toUpperCase()
-            
             for (let s = 0; s < segments; s++) {
                 let segment = ''
                 for (let i = 0; i < segLength; i++) {
@@ -42,48 +29,65 @@
             return key
         }
 
-        // Connect to Supabase
+        // === NEW: Parse expiration input (30d, 6m, 2y, 3600s, etc.) ===
+        function parseExpiration(input) {
+            if (!input || input.trim() === '' || input.trim() === '0') return null
+
+            const str = input.trim().toLowerCase()
+            const match = str.match(/^(\d+)([sdmy]?)$/)
+            if (!match) return null
+
+            const value = parseInt(match[1])
+            const unit = match[2] || 'd'   // default to days if no unit
+
+            const now = new Date()
+
+            switch (unit) {
+                case 's': // seconds
+                    now.setSeconds(now.getSeconds() + value)
+                    break
+                case 'd': // days
+                    now.setDate(now.getDate() + value)
+                    break
+                case 'm': // months
+                    now.setMonth(now.getMonth() + value)
+                    break
+                case 'y': // years
+                    now.setFullYear(now.getFullYear() + value)
+                    break
+                default:
+                    return null
+            }
+            return now.toISOString()
+        }
+
         async function connectSupabase() {
             const url = document.getElementById('supabase-url').value.trim()
             const key = document.getElementById('supabase-key').value.trim()
 
             if (!url || !key) {
-                showToast('Please enter both Supabase URL and Anon Key', 'error')
+                showToast('Please enter Supabase URL and Anon Key', 'error')
                 return
             }
 
             try {
                 supabaseClient = createClient(url, key)
-                
-                // Test connection
-                const { error } = await supabaseClient.from('license_keys').select('count', { count: 'exact', head: true })
-                if (error && error.code !== 'PGRST116') { // PGRST116 = no rows is fine
-                    throw error
-                }
+                await supabaseClient.from('license_keys').select('count', { count: 'exact', head: true })
 
                 document.getElementById('connection-status').innerHTML = `
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400">
-                        <span class="w-2 h-2 bg-emerald-400 rounded-full mr-1 animate-pulse"></span>
-                        Connected
+                        <span class="w-2 h-2 bg-emerald-400 rounded-full mr-1 animate-pulse"></span> Connected
                     </span>
                 `
                 showToast('Connected to Supabase!', 'success')
-                
-                // Show main app
                 document.getElementById('connect-screen').classList.add('hidden')
                 document.getElementById('main-app').classList.remove('hidden')
-                
-                // Load existing keys
                 await loadKeys()
-                
             } catch (err) {
-                console.error(err)
                 showToast('Connection failed: ' + err.message, 'error')
-                supabaseClient = null
             }
         }
 
-        // Generate and save keys
         async function generateAndSaveKeys() {
             if (!supabaseClient) return
 
@@ -91,19 +95,18 @@
             const prefix = document.getElementById('key-prefix').value.trim() || 'MYAPP-'
             const segments = parseInt(document.getElementById('segments').value) || 4
             const segLength = parseInt(document.getElementById('seg-length').value) || 5
-            const days = parseInt(document.getElementById('expires-days').value) || 0
+            const expirationInput = document.getElementById('expires-input').value.trim()
+            const hwid = document.getElementById('hwid-input').value.trim()
+
+            const expiresAt = parseExpiration(expirationInput)
 
             const newKeys = []
-            const expirationDate = days > 0 
-                ? new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString()
-                : null
-
-            // Generate keys
             for (let i = 0; i < count; i++) {
                 newKeys.push({
                     license_key: generateLicenseKey(prefix, segments, segLength),
-                    expires_at: expirationDate,
+                    expires_at: expiresAt,
                     is_active: true,
+                    hwid: hwid || null,
                     metadata: { generated_by: 'LicenseForge', source: 'web-app' }
                 })
             }
@@ -116,37 +119,25 @@
 
                 if (error) throw error
 
-                showToast(`${data.length} license keys created and saved!`, 'success')
-                
-                // Show the newly created keys
+                showToast(`${data.length} license keys created!`, 'success')
+                await loadKeys()
+
+                // Show newly generated keys
                 const generatedList = document.getElementById('generated-list')
                 generatedList.innerHTML = data.map(k => `
-                    <div class="flex justify-between items-center bg-zinc-900 p-3 rounded-xl border border-zinc-700 hover:border-emerald-500 transition-colors">
-                        <code class="font-mono text-emerald-400 text-sm">${k.license_key}</code>
+                    <div class="flex justify-between items-center bg-zinc-900 p-3 rounded-xl border border-zinc-700">
+                        <code class="font-mono text-emerald-400 text-sm break-all">${k.license_key}</code>
                         <button onclick="copyToClipboard('${k.license_key}')" 
-                                class="px-4 py-1 text-xs bg-emerald-500 hover:bg-emerald-600 rounded-lg transition-colors">
-                            COPY
-                        </button>
+                                class="px-4 py-1 text-xs bg-emerald-500 hover:bg-emerald-600 rounded-lg transition">COPY</button>
                     </div>
                 `).join('')
-
-                // Refresh the main table
-                await loadKeys()
-                
             } catch (err) {
-                console.error(err)
-                if (err.message.includes('unique')) {
-                    showToast('Some keys already exist (collision). Try again.', 'error')
-                } else {
-                    showToast('Failed to save keys: ' + err.message, 'error')
-                }
+                showToast('Failed to save keys: ' + err.message, 'error')
             }
         }
 
-        // Load all keys from Supabase
         async function loadKeys() {
             if (!supabaseClient) return
-
             try {
                 const { data, error } = await supabaseClient
                     .from('license_keys')
@@ -154,90 +145,79 @@
                     .order('created_at', { ascending: false })
 
                 if (error) throw error
-
                 currentKeys = data || []
                 renderKeysTable()
-                
             } catch (err) {
-                console.error(err)
                 showToast('Failed to load keys: ' + err.message, 'error')
             }
         }
 
-        // Render the main keys table
         function renderKeysTable() {
             const tbody = document.getElementById('keys-table-body')
-            tbody.innerHTML = currentKeys.map(key => `
-                <tr class="border-b border-zinc-800 hover:bg-zinc-900/50 transition-colors">
-                    <td class="px-6 py-4 font-mono text-sm">${key.license_key}</td>
-                    <td class="px-6 py-4 text-zinc-400 text-sm">
-                        ${new Date(key.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </td>
-                    <td class="px-6 py-4 text-sm">
-                        ${key.expires_at 
-                            ? `<span class="text-amber-400">${new Date(key.expires_at).toLocaleDateString()}</span>` 
-                            : '<span class="text-zinc-500">Never</span>'}
-                    </td>
-                    <td class="px-6 py-4">
-                        <span onclick="toggleActive('${key.license_key}')" 
-                              class="cursor-pointer inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${key.is_active 
-                                ? 'bg-emerald-500/10 text-emerald-400' 
-                                : 'bg-red-500/10 text-red-400'}">
-                            ${key.is_active ? 'ACTIVE' : 'DISABLED'}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 text-right space-x-2">
-                        <button onclick="copyToClipboard('${key.license_key}')" 
-                                class="px-4 py-2 text-xs bg-zinc-800 hover:bg-zinc-700 rounded-xl transition-colors">
-                            📋
-                        </button>
-                        <button onclick="deleteKey('${key.license_key}')" 
-                                class="px-4 py-2 text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-colors">
-                            🗑
-                        </button>
-                    </td>
-                </tr>
-            `).join('')
+            tbody.innerHTML = currentKeys.map(key => {
+                let expireText = 'Never'
+                if (key.expires_at) {
+                    const expDate = new Date(key.expires_at)
+                    const isExpired = expDate < new Date()
+                    expireText = `<span class="${isExpired ? 'text-red-400 line-through' : 'text-amber-400'}">
+                        ${expDate.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})}
+                    </span>`
+                }
 
-            // If empty
-            if (currentKeys.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-zinc-500">
-                            <div class="mx-auto w-16 h-16 bg-zinc-900 rounded-2xl flex items-center justify-center mb-4">🔑</div>
-                            <p class="text-lg">No license keys yet</p>
-                            <p class="text-sm">Generate some above!</p>
+                return `
+                    <tr class="border-b border-zinc-800 hover:bg-zinc-900/50 transition-colors">
+                        <td class="px-6 py-4 font-mono text-sm">${key.license_key}</td>
+                        <td class="px-6 py-4 text-sm text-zinc-400">${new Date(key.created_at).toLocaleDateString()}</td>
+                        <td class="px-6 py-4 text-sm">${expireText}</td>
+                        <td class="px-6 py-4 font-mono text-sm text-zinc-300">${key.hwid || '<span class="text-zinc-500">—</span>'}</td>
+                        <td class="px-6 py-4">
+                            <span onclick="toggleActive('${key.license_key}')" 
+                                  class="cursor-pointer inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${key.is_active 
+                                    ? 'bg-emerald-500/10 text-emerald-400' 
+                                    : 'bg-red-500/10 text-red-400'}">
+                                ${key.is_active ? 'ACTIVE' : 'DISABLED'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right space-x-2">
+                            <button onclick="copyToClipboard('${key.license_key}')" 
+                                    class="px-4 py-2 text-sm bg-zinc-800 hover:bg-zinc-700 rounded-xl transition-colors">📋</button>
+                            <button onclick="deleteKey('${key.license_key}')" 
+                                    class="px-4 py-2 text-sm bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-colors">🗑</button>
                         </td>
                     </tr>
                 `
+            }).join('')
+
+            if (currentKeys.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-16 text-zinc-500">No keys yet. Generate some above.</td></tr>`
             }
         }
 
-        // Toggle active status
         async function toggleActive(licenseKey) {
             if (!supabaseClient) return
-            const keyObj = currentKeys.find(k => k.license_key === licenseKey)
-            if (!keyObj) return
-
             try {
+                const { data } = await supabaseClient
+                    .from('license_keys')
+                    .select('is_active')
+                    .eq('license_key', licenseKey)
+                    .single()
+
                 const { error } = await supabaseClient
                     .from('license_keys')
-                    .update({ is_active: !keyObj.is_active })
+                    .update({ is_active: !data.is_active })
                     .eq('license_key', licenseKey)
 
                 if (error) throw error
-                
-                showToast(`Key ${!keyObj.is_active ? 'activated' : 'disabled'}`, 'success')
+                showToast(`Key ${!data.is_active ? 'activated' : 'disabled'}`, 'success')
                 await loadKeys()
             } catch (err) {
-                showToast('Failed to update: ' + err.message, 'error')
+                showToast('Failed to update status', 'error')
             }
         }
 
-        // Delete a key
         async function deleteKey(licenseKey) {
             if (!supabaseClient) return
-            if (!confirm('Delete this license key permanently?')) return
+            if (!confirm(`Delete this key permanently?\n\n${licenseKey}`)) return
 
             try {
                 const { error } = await supabaseClient
@@ -246,221 +226,162 @@
                     .eq('license_key', licenseKey)
 
                 if (error) throw error
-                
-                showToast('Key deleted', 'success')
+                showToast('Key deleted successfully', 'success')
                 await loadKeys()
             } catch (err) {
-                showToast('Failed to delete: ' + err.message, 'error')
+                showToast('Failed to delete key: ' + err.message, 'error')
             }
         }
 
-        // Copy to clipboard
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showToast('Copied to clipboard!', 'success')
-            })
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text)
+                showToast('✅ Copied to clipboard!', 'success')
+            } catch {
+                showToast('Failed to copy to clipboard', 'error')
+            }
         }
 
-        // Toast notification
-        function showToast(message, type) {
+        function showToast(message, type = 'success') {
             const toast = document.createElement('div')
-            toast.className = `fixed bottom-6 right-6 px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 text-sm font-medium z-50 ${
-                type === 'success' 
-                    ? 'bg-emerald-500 text-white' 
-                    : 'bg-red-500 text-white'
+            toast.className = `fixed bottom-6 right-6 px-6 py-4 rounded-2xl shadow-2xl text-sm font-medium z-50 ${
+                type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
             }`
-            toast.innerHTML = `
-                ${type === 'success' ? '✅' : '⚠️'} ${message}
-            `
+            toast.textContent = message
             document.body.appendChild(toast)
-            
-            setTimeout(() => {
-                toast.style.transition = 'all 0.3s'
-                toast.style.transform = 'translateY(20px)'
-                toast.style.opacity = '0'
-                setTimeout(() => toast.remove(), 300)
-            }, 3000)
+            setTimeout(() => toast.remove(), 2800)
         }
 
-        // Main initialization
         function initApp() {
             initTailwind()
-            
-            // Make connect button work
             document.getElementById('connect-btn').addEventListener('click', connectSupabase)
-            
-            // Generate button
             document.getElementById('generate-btn').addEventListener('click', generateAndSaveKeys)
-            
-            // Refresh button
             document.getElementById('refresh-btn').addEventListener('click', loadKeys)
-            
-            console.log('%c✅ LicenseForge ready! Fill in your Supabase details and start generating keys.', 'color:#10b981; font-family:monospace')
         }
 
-        // Start the app
         window.onload = initApp
+        window.copyToClipboard = copyToClipboard
+        window.deleteKey = deleteKey
+        window.toggleActive = toggleActive
     </script>
 </head>
 <body class="bg-zinc-950 text-white font-sans">
     <div class="min-h-screen">
-        <!-- HEADER -->
+        <!-- Header -->
         <div class="border-b border-zinc-800 bg-zinc-900">
-            <div class="max-w-7xl mx-auto px-8 py-6 flex items-center justify-between">
-                <div class="flex items-center gap-x-3">
-                    <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-2xl flex items-center justify-center text-xl">🔑</div>
+            <div class="max-w-7xl mx-auto px-8 py-6 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-2xl flex items-center justify-center text-2xl">🔑</div>
                     <h1 class="text-3xl font-bold tracking-tighter">LicenseForge</h1>
-                    <span class="text-xs px-2.5 py-px bg-emerald-400 text-zinc-950 rounded font-mono">v1.0</span>
                 </div>
                 <div id="connection-status" class="text-sm"></div>
-                <div class="flex items-center gap-x-4 text-sm">
-                    <a href="#" onclick="window.location.reload()" 
-                       class="flex items-center gap-x-1 hover:text-emerald-400 transition-colors">
-                        <span>⟳</span> Restart
-                    </a>
-                    <div class="text-zinc-500">•</div>
-                    <span class="text-zinc-400">Made for your app</span>
-                </div>
             </div>
         </div>
 
-        <!-- CONNECT SCREEN -->
+        <!-- Connect Screen -->
         <div id="connect-screen" class="max-w-7xl mx-auto px-8 py-12">
-            <div class="max-w-md mx-auto">
-                <div class="bg-zinc-900 border border-zinc-700 rounded-3xl p-8 shadow-2xl">
-                    <h2 class="text-2xl font-semibold mb-2">Connect to Supabase</h2>
-                    <p class="text-zinc-400 mb-8">Enter your project details to start generating license keys</p>
-                    
-                    <div class="space-y-6">
-                        <div>
-                            <label class="block text-xs uppercase tracking-widest text-zinc-400 mb-2">Supabase URL</label>
-                            <input id="supabase-url" 
-                                   type="text" 
-                                   placeholder="https://your-project-id.supabase.co"
-                                   class="w-full bg-zinc-950 border border-zinc-700 focus:border-emerald-500 rounded-2xl px-5 py-4 outline-none text-white font-mono text-sm">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-xs uppercase tracking-widest text-zinc-400 mb-2">Anon Key</label>
-                            <input id="supabase-key" 
-                                   type="password" 
-                                   placeholder="eyJhbGciOi... (your anon key)"
-                                   class="w-full bg-zinc-950 border border-zinc-700 focus:border-emerald-500 rounded-2xl px-5 py-4 outline-none text-white font-mono text-sm">
-                        </div>
-
-                        <button id="connect-btn"
-                                class="w-full bg-white text-zinc-900 hover:bg-emerald-400 hover:text-white font-semibold py-5 rounded-2xl transition-all active:scale-95 text-lg">
-                            Connect &amp; Launch App
-                        </button>
-                        
-                        <p class="text-[10px] text-zinc-500 text-center leading-relaxed">
-                            Need help? 
-                            <a href="https://supabase.com/docs/guides/getting-started" target="_blank" 
-                               class="underline hover:text-emerald-400">Create a Supabase project →</a>
-                        </p>
+            <div class="max-w-md mx-auto bg-zinc-900 border border-zinc-700 rounded-3xl p-8">
+                <h2 class="text-2xl font-semibold mb-2">Connect to Supabase</h2>
+                <p class="text-zinc-400 mb-8">Enter your project details</p>
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-xs uppercase tracking-widest text-zinc-400 mb-2">Supabase URL</label>
+                        <input id="supabase-url" type="text" value="https://mafafvjxkhtbyacpnswa.supabase.co" 
+                               class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 font-mono text-sm">
                     </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-widest text-zinc-400 mb-2">Anon Key</label>
+                        <input id="supabase-key" type="password" placeholder="Paste your anon key here"
+                               class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 font-mono text-sm">
+                    </div>
+                    <button id="connect-btn" 
+                            class="w-full bg-white text-zinc-900 font-semibold py-5 rounded-2xl text-lg hover:bg-emerald-400 transition-all active:scale-95">
+                        Connect to Supabase
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- MAIN APP (hidden until connected) -->
-        <div id="main-app" class="max-w-7xl mx-auto px-8 py-8 hidden">
+        <!-- Main App -->
+        <div id="main-app" class="hidden max-w-7xl mx-auto px-8 py-8">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                
-                <!-- GENERATE PANEL -->
+
+                <!-- Generate Panel -->
                 <div class="lg:col-span-5 bg-zinc-900 border border-zinc-700 rounded-3xl p-8">
-                    <h2 class="text-xl font-semibold mb-6 flex items-center gap-x-2">
-                        <span>⚡</span> Generate New Keys
-                    </h2>
+                    <h2 class="text-xl font-semibold mb-6 flex items-center gap-2"><span>⚡</span> Generate Keys</h2>
                     
                     <div class="space-y-6">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="text-xs uppercase text-zinc-400 mb-2 block">Number of keys</label>
-                                <input id="generate-count" type="number" value="10" 
-                                       class="w-full bg-zinc-950 border border-zinc-700 focus:border-emerald-500 rounded-2xl px-5 py-4 text-center text-2xl font-mono outline-none">
+                                <input id="generate-count" type="number" value="10" class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-center text-2xl font-mono outline-none">
                             </div>
                             <div>
                                 <label class="text-xs uppercase text-zinc-400 mb-2 block">Prefix</label>
-                                <input id="key-prefix" type="text" value="MYAPP-" 
-                                       class="w-full bg-zinc-950 border border-zinc-700 focus:border-emerald-500 rounded-2xl px-5 py-4 text-lg font-mono outline-none uppercase">
+                                <input id="key-prefix" type="text" value="MYAPP-" class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 font-mono uppercase outline-none">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="text-xs uppercase text-zinc-400 mb-2 block">Segments</label>
-                                <input id="segments" type="number" value="4" 
-                                       class="w-full bg-zinc-950 border border-zinc-700 focus:border-emerald-500 rounded-2xl px-5 py-4 text-center text-lg font-mono outline-none">
+                                <input id="segments" type="number" value="4" class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-center outline-none">
                             </div>
                             <div>
                                 <label class="text-xs uppercase text-zinc-400 mb-2 block">Chars per segment</label>
-                                <input id="seg-length" type="number" value="5" 
-                                       class="w-full bg-zinc-950 border border-zinc-700 focus:border-emerald-500 rounded-2xl px-5 py-4 text-center text-lg font-mono outline-none">
+                                <input id="seg-length" type="number" value="5" class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 text-center outline-none">
                             </div>
                         </div>
 
                         <div>
-                            <label class="text-xs uppercase text-zinc-400 mb-2 block">Expires in (days) — leave 0 for never</label>
-                            <input id="expires-days" type="number" value="365" 
-                                   class="w-full bg-zinc-950 border border-zinc-700 focus:border-emerald-500 rounded-2xl px-5 py-4 text-lg font-mono outline-none">
+                            <label class="text-xs uppercase text-zinc-400 mb-2 block">Expiration (e.g. 30d, 6m, 2y, 3600s)</label>
+                            <input id="expires-input" type="text" placeholder="30d or 1y or 0 for never" 
+                                   class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 font-mono outline-none">
+                        </div>
+
+                        <div>
+                            <label class="text-xs uppercase text-zinc-400 mb-2 block">HWID Lock (optional)</label>
+                            <input id="hwid-input" type="text" placeholder="e.g. 8F3A9B2C7D1E4A5F" 
+                                   class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 font-mono outline-none">
                         </div>
 
                         <button id="generate-btn"
-                                class="w-full mt-4 bg-gradient-to-r from-emerald-400 to-cyan-400 text-zinc-950 font-bold py-6 rounded-2xl text-xl hover:brightness-110 transition-all active:scale-[0.97]">
+                                class="w-full mt-4 bg-gradient-to-r from-emerald-400 to-cyan-400 text-zinc-950 font-bold py-6 rounded-2xl text-xl hover:brightness-110 active:scale-95 transition-all">
                             GENERATE &amp; SAVE KEYS
                         </button>
                     </div>
 
-                    <!-- Newly generated keys appear here -->
-                    <div class="mt-8">
-                        <p class="text-xs uppercase text-zinc-400 mb-3">Just generated</p>
-                        <div id="generated-list" class="space-y-2 max-h-64 overflow-auto pr-2">
-                            <!-- Populated by JS -->
-                        </div>
+                    <div class="mt-10">
+                        <p class="text-xs uppercase text-zinc-400 mb-3">Just Generated</p>
+                        <div id="generated-list" class="space-y-2 max-h-64 overflow-auto pr-2"></div>
                     </div>
                 </div>
 
-                <!-- KEYS LIST -->
+                <!-- Keys Table -->
                 <div class="lg:col-span-7 bg-zinc-900 border border-zinc-700 rounded-3xl p-8">
-                    <div class="flex items-center justify-between mb-6">
+                    <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-semibold">All License Keys</h2>
-                        <button id="refresh-btn"
-                                class="flex items-center gap-x-2 text-sm bg-zinc-800 hover:bg-zinc-700 px-5 py-3 rounded-2xl transition-colors">
-                            <span>⟳</span> Refresh
+                        <button id="refresh-btn" class="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 px-6 py-3 rounded-2xl text-sm transition-colors">
+                            ⟳ Refresh List
                         </button>
                     </div>
-                    
                     <div class="overflow-x-auto">
                         <table class="w-full">
                             <thead>
                                 <tr class="text-xs uppercase text-zinc-400 border-b border-zinc-700">
-                                    <th class="text-left px-6 py-4 font-normal">License Key</th>
-                                    <th class="text-left px-6 py-4 font-normal">Created</th>
-                                    <th class="text-left px-6 py-4 font-normal">Expires</th>
-                                    <th class="text-left px-6 py-4 font-normal">Status</th>
-                                    <th class="text-right px-6 py-4 font-normal">Actions</th>
+                                    <th class="text-left px-6 py-4">License Key</th>
+                                    <th class="text-left px-6 py-4">Created</th>
+                                    <th class="text-left px-6 py-4">Expires</th>
+                                    <th class="text-left px-6 py-4">HWID</th>
+                                    <th class="text-left px-6 py-4">Status</th>
+                                    <th class="text-right px-6 py-4">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="keys-table-body" class="text-sm divide-y divide-zinc-800">
-                                <!-- Populated by JS -->
-                            </tbody>
+                            <tbody id="keys-table-body" class="divide-y divide-zinc-800 text-sm"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- FOOTER NOTE -->
-    <div class="max-w-7xl mx-auto px-8 py-6 text-[10px] text-zinc-500 flex justify-between items-center">
-        <div>
-            Table required in Supabase:<br>
-            <span class="font-mono text-emerald-300">license_keys</span> (license_key TEXT UNIQUE, expires_at TIMESTAMPTZ, is_active BOOLEAN DEFAULT true, created_at TIMESTAMPTZ DEFAULT NOW(), metadata JSONB)
-        </div>
-        <div class="text-right">
-            Built as a single HTML file • Works offline after first connect<br>
-            <span class="text-emerald-400">RLS recommended for production</span>
         </div>
     </div>
 </body>
