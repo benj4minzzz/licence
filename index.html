@@ -19,10 +19,7 @@
                 theme: {
                     extend: {
                         colors: {
-                            nicotine: {
-                                500: '#22c55e',
-                                600: '#16a34a'
-                            }
+                            nicotine: { 500: '#22c55e', 600: '#16a34a' }
                         }
                     }
                 }
@@ -63,23 +60,17 @@
         }
 
         async function connectSupabase() {
-            const enteredUrl = document.getElementById('supabase-url').value.trim()
             const key = document.getElementById('supabase-key').value.trim()
 
-            // Strict check - only allow your specific project
-            if (enteredUrl !== ALLOWED_URL) {
-                showToast('⛔ This tool is restricted to the official Nicotine Supabase project only.', 'error')
-                return
-            }
-
             if (!key) {
-                showToast('Please paste your Anon Key', 'error')
+                showToast('Please paste your Supabase Anon Key', 'error')
                 return
             }
 
             try {
-                supabaseClient = createClient(enteredUrl, key)
+                supabaseClient = createClient(ALLOWED_URL, key)
 
+                // Test connection
                 await supabaseClient.from('license_keys').select('count', { count: 'exact', head: true })
 
                 document.getElementById('connection-status').innerHTML = `
@@ -93,12 +84,10 @@
                 document.getElementById('main-app').classList.remove('hidden')
                 await loadKeys()
             } catch (err) {
+                console.error(err)
                 showToast('Connection failed: ' + err.message, 'error')
             }
         }
-
-        // Rest of the functions remain the same (generateAndSaveKeys, loadKeys, renderKeysTable, etc.)
-        // ... [I'm keeping the rest identical to the previous version for brevity]
 
         async function generateAndSaveKeys() {
             if (!supabaseClient) return
@@ -119,19 +108,15 @@
                     expires_at: expiresAt,
                     is_active: true,
                     hwid: hwid || null,
-                    metadata: { generated_by: 'Nicotine License Manager', source: 'web-app' }
+                    metadata: { generated_by: 'Nicotine License Manager' }
                 })
             }
 
             try {
-                const { data, error } = await supabaseClient
-                    .from('license_keys')
-                    .insert(newKeys)
-                    .select()
-
+                const { data, error } = await supabaseClient.from('license_keys').insert(newKeys).select()
                 if (error) throw error
 
-                showToast(`${data.length} Nicotine license keys created successfully!`, 'success')
+                showToast(`${data.length} Nicotine license keys created!`, 'success')
                 await loadKeys()
 
                 const generatedList = document.getElementById('generated-list')
@@ -143,7 +128,7 @@
                     </div>
                 `).join('')
             } catch (err) {
-                showToast('Failed to save keys: ' + err.message, 'error')
+                showToast('Failed to save: ' + err.message, 'error')
             }
         }
 
@@ -174,50 +159,36 @@
                         ${expDate.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})}
                     </span>`
                 }
-
                 return `
                     <tr class="border-b border-zinc-800 hover:bg-zinc-900/50">
                         <td class="px-6 py-4 font-mono text-sm">${key.license_key}</td>
                         <td class="px-6 py-4 text-sm text-zinc-400">${new Date(key.created_at).toLocaleDateString()}</td>
                         <td class="px-6 py-4 text-sm">${expireText}</td>
-                        <td class="px-6 py-4 font-mono text-sm text-zinc-300">${key.hwid || '<span class="text-zinc-500">—</span>'}</td>
+                        <td class="px-6 py-4 font-mono text-sm">${key.hwid || '<span class="text-zinc-500">—</span>'}</td>
                         <td class="px-6 py-4">
                             <span onclick="toggleActive('${key.license_key}')" 
-                                  class="cursor-pointer px-3 py-1 rounded-full text-xs font-medium ${key.is_active 
-                                    ? 'bg-emerald-500/10 text-emerald-400' 
-                                    : 'bg-red-500/10 text-red-400'}">
+                                  class="cursor-pointer px-3 py-1 rounded-full text-xs font-medium ${key.is_active ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}">
                                 ${key.is_active ? 'ACTIVE' : 'DISABLED'}
                             </span>
                         </td>
                         <td class="px-6 py-4 text-right space-x-2">
-                            <button onclick="copyToClipboard('${key.license_key}')" 
-                                    class="px-4 py-2 text-sm bg-zinc-800 hover:bg-zinc-700 rounded-xl">📋</button>
-                            <button onclick="deleteKey('${key.license_key}')" 
-                                    class="px-4 py-2 text-sm bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl">🗑</button>
+                            <button onclick="copyToClipboard('${key.license_key}')" class="px-4 py-2 text-sm bg-zinc-800 hover:bg-zinc-700 rounded-xl">📋</button>
+                            <button onclick="deleteKey('${key.license_key}')" class="px-4 py-2 text-sm bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl">🗑</button>
                         </td>
                     </tr>
                 `
             }).join('')
 
             if (currentKeys.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-16 text-zinc-500">No keys found. Generate new keys above.</td></tr>`
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center py-16 text-zinc-500">No keys yet. Generate some above.</td></tr>`
             }
         }
 
         async function toggleActive(licenseKey) {
             if (!supabaseClient) return
             try {
-                const { data } = await supabaseClient
-                    .from('license_keys')
-                    .select('is_active')
-                    .eq('license_key', licenseKey)
-                    .single()
-
-                const { error } = await supabaseClient
-                    .from('license_keys')
-                    .update({ is_active: !data.is_active })
-                    .eq('license_key', licenseKey)
-
+                const { data } = await supabaseClient.from('license_keys').select('is_active').eq('license_key', licenseKey).single()
+                const { error } = await supabaseClient.from('license_keys').update({ is_active: !data.is_active }).eq('license_key', licenseKey)
                 if (error) throw error
                 showToast(`Key ${!data.is_active ? 'activated' : 'disabled'}`, 'success')
                 await loadKeys()
@@ -231,16 +202,12 @@
             if (!confirm(`Delete this Nicotine license key permanently?\n\n${licenseKey}`)) return
 
             try {
-                const { error } = await supabaseClient
-                    .from('license_keys')
-                    .delete()
-                    .eq('license_key', licenseKey)
-
+                const { error } = await supabaseClient.from('license_keys').delete().eq('license_key', licenseKey)
                 if (error) throw error
                 showToast('Key deleted successfully', 'success')
                 await loadKeys()
             } catch (err) {
-                showToast('Failed to delete key', 'error')
+                showToast('Failed to delete', 'error')
             }
         }
 
@@ -282,13 +249,13 @@
         <div class="border-b border-zinc-800 bg-black">
             <div class="max-w-7xl mx-auto px-8 py-6 flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center text-2xl shadow-lg">🌿</div>
+                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center text-2xl">🌿</div>
                     <div>
                         <h1 class="text-3xl font-bold tracking-tighter">Nicotine</h1>
                         <p class="text-xs text-emerald-400 -mt-1">License Manager</p>
                     </div>
                 </div>
-                <div id="connection-status"></div>
+                <div id="connection-status" class="text-sm"></div>
             </div>
         </div>
 
@@ -296,11 +263,14 @@
         <div id="connect-screen" class="max-w-7xl mx-auto px-8 py-12">
             <div class="max-w-md mx-auto bg-zinc-900 border border-emerald-900/50 rounded-3xl p-10">
                 <div class="text-center mb-8">
-                    <div class="mx-auto w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center text-4xl mb-4">
-                        🔑
-                    </div>
+                    <div class="mx-auto w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center text-4xl mb-4">🔑</div>
                     <h2 class="text-2xl font-semibold">Nicotine License Manager</h2>
-                    <p class="text-zinc-400 mt-2">Internal Administration Tool</p>
+                    <p class="text-zinc-400 mt-2">Internal Key Generation Tool</p>
+                </div>
+
+                <div class="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-2xl text-sm">
+                    <strong>Important:</strong> Open this file using a local server (Live Server in VS Code) or upload it to a hosting service.<br>
+                    Opening directly from your computer may cause connection issues.
                 </div>
 
                 <div class="space-y-6">
@@ -313,25 +283,25 @@
                     </div>
                     <div>
                         <label class="block text-xs uppercase tracking-widest text-zinc-400 mb-2">Anon Key</label>
-                        <input id="supabase-key" type="password" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                        <input id="supabase-key" type="password" placeholder="Paste your anon key here..."
                                class="w-full bg-zinc-950 border border-emerald-800 rounded-2xl px-5 py-4 font-mono text-sm">
                     </div>
 
                     <button id="connect-btn"
-                            class="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-bold py-5 rounded-2xl text-lg transition-all active:scale-95">
+                            class="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-bold py-5 rounded-2xl text-lg transition-all">
                         Connect to Nicotine Database
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Main App (same as before) -->
+        <!-- Main App -->
         <div id="main-app" class="hidden max-w-7xl mx-auto px-8 py-8">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 <!-- Generate Panel -->
                 <div class="lg:col-span-5 bg-zinc-900 border border-emerald-900/30 rounded-3xl p-8">
                     <h2 class="text-xl font-semibold mb-6 text-emerald-400">⚡ Generate Nicotine Keys</h2>
-                    <!-- Form fields here (same as previous version) -->
+                    
                     <div class="space-y-6">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
