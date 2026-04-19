@@ -8,10 +8,11 @@
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
 
-        let supabaseClient = null
+        let readClient = null
+        let adminClient = null
         let currentKeys = []
 
-        const ALLOWED_URL = 'https://mafafvjxkhtbyacpnswa.supabase.co'
+        const PROJECT_URL = 'https://mafafvjxkhtbyacpnswa.supabase.co'
 
         function initTailwind() {
             tailwind.config = {
@@ -60,23 +61,39 @@
             return now.toISOString()
         }
 
+        function getServiceRoleKey() {
+            return document.getElementById('service-role-key').value.trim()
+        }
+
+        function ensureAdminClient() {
+            const serviceRoleKey = getServiceRoleKey()
+            if (!serviceRoleKey) {
+                showToast('Service role key is required for create/update/delete.', 'error')
+                return false
+            }
+
+            adminClient = createClient(PROJECT_URL, serviceRoleKey)
+            return true
+        }
+
         async function connectSupabase() {
-            const key = document.getElementById('supabase-key').value.trim()
-            if (!key) {
+            const anonKey = document.getElementById('supabase-key').value.trim()
+            if (!anonKey) {
                 showToast('Please paste your Supabase anon key.', 'error')
                 return
             }
 
             try {
-                supabaseClient = createClient(ALLOWED_URL, key)
-                await supabaseClient.from('license_keys').select('count', { count: 'exact', head: true })
+                readClient = createClient(PROJECT_URL, anonKey)
+                await readClient.from('license_keys').select('count', { count: 'exact', head: true })
 
                 document.getElementById('connection-status').innerHTML = `
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400">
-                        <span class="w-2 h-2 bg-emerald-400 rounded-full mr-1 animate-pulse"></span> Connected
+                        <span class="w-2 h-2 bg-emerald-400 rounded-full mr-1 animate-pulse"></span> Read Connected
                     </span>
                 `
 
+                updateAdminStatus()
                 showToast('Connected to Nicotine license database.', 'success')
                 document.getElementById('connect-screen').classList.add('hidden')
                 document.getElementById('main-app').classList.remove('hidden')
@@ -87,8 +104,44 @@
             }
         }
 
+        async function verifyAdminKey() {
+            if (!ensureAdminClient()) return
+
+            try {
+                const { error } = await adminClient.from('license_keys').select('count', { count: 'exact', head: true })
+                if (error) throw error
+                updateAdminStatus(true)
+                showToast('Service role accepted. Admin actions are enabled.', 'success')
+            } catch (err) {
+                adminClient = null
+                updateAdminStatus(false)
+                showToast('Service role validation failed: ' + err.message, 'error')
+            }
+        }
+
+        function updateAdminStatus(verified = false) {
+            const hasKey = !!getServiceRoleKey()
+            const node = document.getElementById('admin-status')
+
+            if (verified && hasKey) {
+                node.innerHTML = `
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-300">
+                        <span class="w-2 h-2 bg-amber-300 rounded-full mr-1"></span> Admin Enabled
+                    </span>
+                `
+                return
+            }
+
+            node.innerHTML = `
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-zinc-700/50 text-zinc-300">
+                    ${hasKey ? 'Admin Key Entered' : 'Read Only Until Service Role Is Entered'}
+                </span>
+            `
+        }
+
         async function generateAndSaveKeys() {
-            if (!supabaseClient) return
+            if (!readClient) return
+            if (!ensureAdminClient()) return
 
             const count = parseInt(document.getElementById('generate-count').value, 10) || 10
             const prefix = document.getElementById('key-prefix').value.trim() || 'NIC-'
@@ -106,7 +159,7 @@
             }))
 
             try {
-                const { data, error } = await supabaseClient.from('license_keys').insert(newKeys).select()
+                const { data, error } = await adminClient.from('license_keys').insert(newKeys).select()
                 if (error) throw error
 
                 showToast(`${data.length} license keys created.`, 'success')
@@ -125,10 +178,10 @@
         }
 
         async function loadKeys() {
-            if (!supabaseClient) return
+            if (!readClient) return
 
             try {
-                const { data, error } = await supabaseClient
+                const { data, error } = await readClient
                     .from('license_keys')
                     .select('*')
                     .order('created_at', { ascending: false })
@@ -199,10 +252,10 @@
         }
 
         async function toggleActive(licenseKey) {
-            if (!supabaseClient) return
+            if (!ensureAdminClient()) return
 
             try {
-                const { data, error: fetchError } = await supabaseClient
+                const { data, error: fetchError } = await readClient
                     .from('license_keys')
                     .select('is_active')
                     .eq('license_key', licenseKey)
@@ -210,7 +263,7 @@
 
                 if (fetchError) throw fetchError
 
-                const { error } = await supabaseClient
+                const { error } = await adminClient
                     .from('license_keys')
                     .update({ is_active: !data.is_active })
                     .eq('license_key', licenseKey)
@@ -225,11 +278,11 @@
         }
 
         async function deleteKey(licenseKey) {
-            if (!supabaseClient) return
+            if (!ensureAdminClient()) return
             if (!confirm(`Delete this license key permanently?\n\n${licenseKey}`)) return
 
             try {
-                const { error } = await supabaseClient.from('license_keys').delete().eq('license_key', licenseKey)
+                const { error } = await adminClient.from('license_keys').delete().eq('license_key', licenseKey)
                 if (error) throw error
                 showToast('Key deleted successfully.', 'success')
                 await loadKeys()
@@ -258,8 +311,11 @@
         function initApp() {
             initTailwind()
             document.getElementById('connect-btn').addEventListener('click', connectSupabase)
+            document.getElementById('verify-admin-btn').addEventListener('click', verifyAdminKey)
             document.getElementById('generate-btn').addEventListener('click', generateAndSaveKeys)
             document.getElementById('refresh-btn').addEventListener('click', loadKeys)
+            document.getElementById('service-role-key').addEventListener('input', () => updateAdminStatus(false))
+            updateAdminStatus(false)
         }
 
         window.onload = initApp
@@ -271,7 +327,7 @@
 <body class="bg-zinc-950 text-white font-sans">
     <div class="min-h-screen">
         <div class="border-b border-zinc-800 bg-black">
-            <div class="max-w-7xl mx-auto px-8 py-6 flex justify-between items-center">
+            <div class="max-w-7xl mx-auto px-8 py-6 flex justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center text-lg font-bold text-black">N</div>
                     <div>
@@ -279,16 +335,23 @@
                         <p class="text-xs text-emerald-400 -mt-1">License Manager</p>
                     </div>
                 </div>
-                <div id="connection-status" class="text-sm"></div>
+                <div class="flex items-center gap-3">
+                    <div id="connection-status" class="text-sm"></div>
+                    <div id="admin-status" class="text-sm"></div>
+                </div>
             </div>
         </div>
 
         <div id="connect-screen" class="max-w-7xl mx-auto px-8 py-12">
-            <div class="max-w-md mx-auto bg-zinc-900 border border-emerald-900/50 rounded-3xl p-10">
+            <div class="max-w-xl mx-auto bg-zinc-900 border border-emerald-900/50 rounded-3xl p-10">
                 <div class="text-center mb-8">
                     <div class="mx-auto w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center text-3xl font-bold text-emerald-400 mb-4">N</div>
                     <h2 class="text-2xl font-semibold">Nicotine License Manager</h2>
-                    <p class="text-zinc-400 mt-2">Keys auto-lock to HWID on first successful use.</p>
+                    <p class="text-zinc-400 mt-2">Reads can use anon. Create, update, and delete require the service role key.</p>
+                </div>
+
+                <div class="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl text-sm text-red-100">
+                    <strong>Local only:</strong> a Supabase <code class="font-mono">service_role</code> key should never be exposed on a hosted public page. Use this file only as a local/private admin tool.
                 </div>
 
                 <div class="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-2xl text-sm">
@@ -301,13 +364,22 @@
                         <input id="supabase-url" type="text" value="https://mafafvjxkhtbyacpnswa.supabase.co" readonly class="w-full bg-zinc-950 border border-emerald-800 rounded-2xl px-5 py-4 font-mono text-sm text-emerald-300">
                     </div>
                     <div>
-                        <label class="block text-xs uppercase tracking-widest text-zinc-400 mb-2">Anon Key</label>
+                        <label class="block text-xs uppercase tracking-widest text-zinc-400 mb-2">Anon Key (Read Access)</label>
                         <input id="supabase-key" type="password" placeholder="Paste your anon key here..." class="w-full bg-zinc-950 border border-emerald-800 rounded-2xl px-5 py-4 font-mono text-sm">
                     </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-widest text-zinc-400 mb-2">Service Role Key (Admin Access)</label>
+                        <input id="service-role-key" type="password" placeholder="Paste service_role key to enable edits..." class="w-full bg-zinc-950 border border-amber-700 rounded-2xl px-5 py-4 font-mono text-sm">
+                    </div>
 
-                    <button id="connect-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-bold py-5 rounded-2xl text-lg transition-all">
-                        Connect to Database
-                    </button>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <button id="connect-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-bold py-4 rounded-2xl text-lg transition-all">
+                            Connect Read Access
+                        </button>
+                        <button id="verify-admin-btn" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold py-4 rounded-2xl text-lg transition-all">
+                            Enable Admin Access
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -364,8 +436,8 @@
                             <input id="expires-input" type="text" placeholder="30d or 0 for never" class="w-full bg-zinc-950 border border-zinc-700 rounded-2xl px-5 py-4 font-mono">
                         </div>
 
-                        <div class="rounded-2xl border border-emerald-900/40 bg-emerald-500/5 px-5 py-4 text-sm text-zinc-300">
-                            New keys are created <span class="font-semibold text-white">without an HWID</span>. The jar fills the <code class="font-mono text-emerald-300">hwid</code> column automatically the first time a valid key is used.
+                        <div class="rounded-2xl border border-amber-900/40 bg-amber-500/5 px-5 py-4 text-sm text-zinc-300">
+                            New keys are created without an HWID. Admin actions on this page require a service role key in the field above.
                         </div>
 
                         <button id="generate-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-bold py-6 rounded-2xl text-xl transition-all">
@@ -383,7 +455,7 @@
                     <div class="flex justify-between items-center mb-6 gap-4">
                         <div>
                             <h2 class="text-xl font-semibold">All License Keys</h2>
-                            <p class="text-sm text-zinc-400 mt-1">The HWID column updates itself after first successful launch.</p>
+                            <p class="text-sm text-zinc-400 mt-1">Reads use anon access. Mutations require service role admin access.</p>
                         </div>
                         <button id="refresh-btn" class="bg-zinc-800 hover:bg-zinc-700 px-6 py-3 rounded-2xl text-sm">
                             Refresh
