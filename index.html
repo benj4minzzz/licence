@@ -1072,6 +1072,7 @@
             const expiryDuration = document.getElementById('expiry-duration').value
             const licenseMode = document.querySelector('input[name="license-mode"]:checked')?.value || 'generated'
             const customLicenseKey = document.getElementById('custom-license-key').value.trim()
+            const passwordVal = document.getElementById('license-password').value.trim()
             const pool = getCharacterPool()
 
             if (licenseMode === 'generated' && !pool) {
@@ -1097,6 +1098,7 @@
 
             const newKeys = Array.from({ length: totalKeys }, () => ({
                 license_key: licenseMode === 'custom' ? customLicenseKey : generateLicenseKeyFromMask(mask, pool),
+                password: passwordVal || null,
                 expires_at: expiresAt,
                 is_active: true,
                 hwid: null,
@@ -1117,6 +1119,10 @@
             try {
                 const { data, error } = await adminClient.from('license_keys').insert(newKeys).select()
                 if (error) throw error
+
+                // Reset fields
+                document.getElementById('license-password').value = ''
+                document.getElementById('license-note').value = ''
 
                 await loadKeys()
                 showToast(`${(data || []).length} benjAuth license${(data || []).length === 1 ? '' : 's'} created.`, 'success')
@@ -1188,6 +1194,7 @@
                 const expired = isExpired(key.expires_at)
                 const subscriptionLevel = escapeHtml(key.metadata?.subscription_level || '1')
                 const note = escapeHtml(key.metadata?.license_note || '')
+                const pwd = escapeHtml(key.password || 'None')
                 const hwidMarkup = isLocked
                     ? `<div class="mini-copy">${escapeHtml(key.hwid)}</div>`
                     : `<div class="mini-copy muted">Auto-locks on first use</div>`
@@ -1197,7 +1204,10 @@
                         <div>
                             <div class="mini-label">License Key</div>
                             <div class="license-key">${escapeHtml(key.license_key)}</div>
-                            ${note ? `<div class="license-note">${note}</div>` : ''}
+                            <div class="license-note" style="margin-top: 4px; color: #a4adb9;">
+                                <strong>Password:</strong> ${pwd}
+                            </div>
+                            ${note ? `<div class="license-note" style="margin-top: 4px; font-style: italic;">Note: ${note}</div>` : ''}
                         </div>
                         <div>
                             <div class="mini-label">Created</div>
@@ -1365,7 +1375,7 @@
 
                         <div class="field">
                             <label for="supabase-key">Anon Key</label>
-                            <input id="supabase-key" type="password" placeholder="Paste your anon key">
+                            <input id="supabase-key" type="password" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hZmFmdmp4a2h0YnlhY3Buc3dhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5NTMzMDQsImV4cCI6MjA5MTUyOTMwNH0.t-SU36Q2uNnOOPv6M0VjSJ6AH_jh_nkkTtC8K8v8OKY" placeholder="Paste your anon key">
                         </div>
 
                         <div class="field">
@@ -1520,6 +1530,11 @@
                                     <option value="2">2 - Pro</option>
                                     <option value="3">3 - Enterprise</option>
                                 </select>
+                            </div>
+
+                            <div class="field">
+                                <label for="license-password">Account Password</label>
+                                <input id="license-password" type="text" placeholder="Set password for this key">
                             </div>
 
                             <div class="field">
