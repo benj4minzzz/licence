@@ -106,72 +106,6 @@
             font-size: 0.82rem;
         }
 
-        .sidebar-group {
-            margin-top: 24px;
-        }
-
-        .sidebar-label {
-            margin: 0 0 12px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: var(--muted-2);
-        }
-
-        .nav-item {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 13px 14px;
-            margin-bottom: 8px;
-            border-radius: 14px;
-            background: transparent;
-            color: #d2d7df;
-            transition: background 0.18s ease, transform 0.18s ease, color 0.18s ease;
-        }
-
-        .nav-item:hover,
-        .nav-item.active {
-            background: rgba(255, 255, 255, 0.05);
-            color: #ffffff;
-            transform: translateX(2px);
-        }
-
-        .nav-item strong {
-            font-size: 0.96rem;
-            font-weight: 600;
-        }
-
-        .nav-item span {
-            font-size: 0.76rem;
-            color: var(--muted);
-        }
-
-        .sidebar-card {
-            margin-top: 24px;
-            padding: 18px;
-            border-radius: 18px;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-            border: 1px solid var(--border);
-        }
-
-        .sidebar-card h3,
-        .card-header h3,
-        .modal-panel h2,
-        .hero-card h1 {
-            margin: 0;
-            letter-spacing: -0.03em;
-        }
-
-        .sidebar-card p {
-            margin: 10px 0 0;
-            color: var(--muted);
-            line-height: 1.55;
-            font-size: 0.9rem;
-        }
-
         .workspace {
             position: relative;
             min-width: 0;
@@ -201,8 +135,7 @@
             border: 1px solid var(--border);
         }
 
-        .search-shell svg,
-        .muted-icon {
+        .search-shell svg {
             width: 18px;
             height: 18px;
             color: var(--muted-2);
@@ -319,7 +252,7 @@
         .stat-card,
         .panel-card,
         .connect-card,
-        .modal-panel,
+        .modal-backdrop,
         .access-card {
             background: linear-gradient(180deg, rgba(20, 23, 29, 0.98), rgba(11, 13, 18, 0.98));
             border: 1px solid var(--border);
@@ -438,9 +371,6 @@
             border-radius: 18px;
             background: rgba(255, 255, 255, 0.025);
             border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .license-row {
             grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(120px, 0.55fr)) auto;
             align-items: start;
         }
@@ -644,22 +574,6 @@
             accent-color: var(--blue);
         }
 
-        .helper-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 12px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--border);
-            color: var(--muted);
-            font-size: 0.82rem;
-        }
-
-        .helper-pill strong {
-            color: #f1f4f7;
-        }
-
         .connect-shell {
             min-height: 100vh;
             display: grid;
@@ -692,26 +606,8 @@
             line-height: 1.6;
         }
 
-        .connect-info {
-            margin-top: 22px;
-            padding: 16px 18px;
-            border-radius: 18px;
-            background: rgba(37, 99, 235, 0.08);
-            border: 1px solid rgba(37, 99, 235, 0.16);
-            color: #d3defb;
-            line-height: 1.55;
-            font-size: 0.92rem;
-        }
-
-        .connect-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 8px;
-            flex-wrap: wrap;
-        }
-
         .modal-backdrop {
-            position: absolute;
+            position: fixed;
             inset: 0;
             display: grid;
             place-items: center;
@@ -722,7 +618,7 @@
         }
 
         .modal-panel {
-            width: min(470px, calc(100vw - 56px));
+            width: min(520px, calc(100vw - 36px));
             border-radius: 18px;
             overflow: hidden;
         }
@@ -747,7 +643,7 @@
         }
 
         .access-overlay {
-            position: absolute;
+            position: fixed;
             inset: 0;
             display: grid;
             place-items: center;
@@ -808,7 +704,6 @@
                 opacity: 0;
                 transform: translateY(10px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -819,12 +714,10 @@
             .workspace {
                 padding-top: 18px;
             }
-
             .stat-grid,
             .license-row {
                 grid-template-columns: 1fr;
             }
-
             .row-actions {
                 justify-content: flex-start;
             }
@@ -838,40 +731,33 @@
                 flex-direction: column;
                 align-items: stretch;
             }
-
             .topbar-right,
             .hero-actions,
             .connect-actions,
             .status-row {
                 width: 100%;
             }
-
             .status-row,
             .hero-actions,
             .connect-actions {
                 justify-content: stretch;
             }
-
             .ghost-btn,
             .secondary-btn,
             .primary-btn {
                 width: 100%;
             }
-
             .row-2,
             .toggle-grid {
                 grid-template-columns: 1fr;
             }
-
             .workspace {
                 padding-left: 16px;
                 padding-right: 16px;
             }
-
             .connect-card {
                 padding: 24px;
             }
-
             .modal-panel {
                 width: min(100%, calc(100vw - 24px));
             }
@@ -1052,7 +938,7 @@
                 if (error) throw error
                 updateAdminStatus(true)
                 showToast('Service role verified. benjAuth admin actions are enabled.', 'success')
-                openCreateModal()
+                document.getElementById('access-overlay').classList.add('hidden')
             } catch (err) {
                 adminClient = null
                 updateAdminStatus(false)
@@ -1073,6 +959,7 @@
             const licenseMode = document.querySelector('input[name="license-mode"]:checked')?.value || 'generated'
             const customLicenseKey = document.getElementById('custom-license-key').value.trim()
             const passwordVal = document.getElementById('license-password').value.trim()
+            const initialPoints = parseFloat(document.getElementById('initial-points').value) || 100.000
             const pool = getCharacterPool()
 
             if (licenseMode === 'generated' && !pool) {
@@ -1102,6 +989,7 @@
                 expires_at: expiresAt,
                 is_active: true,
                 hwid: null,
+                points: initialPoints,
                 metadata: {
                     generated_by: 'benjAuth Dashboard',
                     hwid_mode: 'auto-lock-on-first-use',
@@ -1123,6 +1011,7 @@
                 // Reset fields
                 document.getElementById('license-password').value = ''
                 document.getElementById('license-note').value = ''
+                closeCreateModal()
 
                 await loadKeys()
                 showToast(`${(data || []).length} benjAuth license${(data || []).length === 1 ? '' : 's'} created.`, 'success')
@@ -1195,6 +1084,7 @@
                 const subscriptionLevel = escapeHtml(key.metadata?.subscription_level || '1')
                 const note = escapeHtml(key.metadata?.license_note || '')
                 const pwd = escapeHtml(key.password || 'None')
+                const pts = parseFloat(key.points || 0).toFixed(3)
                 const hwidMarkup = isLocked
                     ? `<div class="mini-copy">${escapeHtml(key.hwid)}</div>`
                     : `<div class="mini-copy muted">Auto-locks on first use</div>`
@@ -1210,17 +1100,18 @@
                             ${note ? `<div class="license-note" style="margin-top: 4px; font-style: italic;">Note: ${note}</div>` : ''}
                         </div>
                         <div>
-                            <div class="mini-label">Created</div>
+                            <div class="mini-label">Created / Plan</div>
                             <div class="mini-copy">${formatShortDate(key.created_at)}</div>
+                            <div class="license-note" style="margin-top: 4px;">Level Plan ${subscriptionLevel}</div>
                         </div>
                         <div>
                             <div class="mini-label">Expiration</div>
                             <div class="mini-copy">${expired ? `<span class="badge danger">${formatShortDate(key.expires_at)}</span>` : `<span class="badge ${key.expires_at ? 'warning' : 'neutral'}">${formatShortDate(key.expires_at)}</span>`}</div>
                         </div>
                         <div>
-                            <div class="mini-label">HWID / Level</div>
+                            <div class="mini-label">HWID / Points</div>
                             ${hwidMarkup}
-                            <div class="license-note">Plan ${subscriptionLevel}</div>
+                            <div class="license-note" style="margin-top: 4px; font-weight: 700; color: #a78bfa;">${pts} PTS</div>
                         </div>
                         <div>
                             <div class="mini-label">Status</div>
@@ -1231,6 +1122,7 @@
                             </div>
                         </div>
                         <div class="row-actions">
+                            <button onclick="setPointsPrompt('${escapeHtml(key.license_key)}', ${key.points || 0})" class="inline-btn" style="color: #a78bfa; border-color: rgba(167, 139, 250, 0.2);">Set PTS</button>
                             <button onclick="copyToClipboard('${escapeHtml(key.license_key)}')" class="inline-btn">Copy</button>
                             <button onclick="deleteKey('${escapeHtml(key.license_key)}')" class="inline-btn danger">Delete</button>
                         </div>
@@ -1263,6 +1155,34 @@
             } catch (err) {
                 console.error(err)
                 showToast('Failed to update license status.', 'error')
+            }
+        }
+
+        async function setPointsPrompt(licenseKey, currentPoints) {
+            if (!ensureAdminClient()) return
+
+            const newPointsStr = prompt(`Set new points balance for key ${licenseKey}:`, currentPoints)
+            if (newPointsStr === null) return // Canceled
+
+            const newPoints = parseFloat(newPointsStr)
+            if (isNaN(newPoints) || newPoints < 0) {
+                showToast('Please enter a valid positive number.', 'error')
+                return
+            }
+
+            try {
+                const { error } = await adminClient
+                    .from('license_keys')
+                    .update({ points: newPoints })
+                    .eq('license_key', licenseKey)
+
+                if (error) throw error
+
+                showToast(`Points updated to ${newPoints.toFixed(3)} PTS.`, 'success')
+                await loadKeys()
+            } catch (err) {
+                console.error(err)
+                showToast('Failed to update points: ' + err.message, 'error')
             }
         }
 
@@ -1348,6 +1268,7 @@
         window.copyToClipboard = copyToClipboard
         window.deleteKey = deleteKey
         window.toggleActive = toggleActive
+        window.setPointsPrompt = setPointsPrompt
     </script>
 </head>
 <body>
@@ -1365,7 +1286,7 @@
                         </div>
                     </div>
 
-                    <p class="access-copy">Start with your <code>service_role</code> key, then add the anon key used for read access. This is the first gate before the dashboard opens up.</p>
+                    <p class="access-copy">Start by your <code>service_role</code> key, then add the anon key used for read access. This is the first gate before the dashboard opens up.</p>
 
                     <div class="stack-card">
                         <div class="field">
@@ -1458,7 +1379,7 @@
                         <div class="card-header">
                             <div>
                                 <h3>License Inventory</h3>
-                                <p>Read access is enough to browse. Service role access is required to mutate records.</p>
+                                <p id="admin-hint">Paste a service role key to unlock create, toggle, and delete actions.</p>
                             </div>
                             <div id="inventory-count" class="inventory-meta">0 shown</div>
                         </div>
@@ -1468,101 +1389,104 @@
             </div>
 
             <div id="modal-backdrop" class="modal-backdrop hidden">
-                <section class="modal-panel">
-                    <div class="modal-body">
-                        <div class="card-header" style="margin-bottom: 22px;">
+                <section class="modal-panel" style="background: var(--panel); border: 1px solid var(--border); box-shadow: var(--shadow); border-radius: var(--radius-lg); width: min(520px, calc(100vw - 36px)); max-height: 90vh; display: flex; flex-direction: column;">
+                    <div class="modal-body" style="padding: 24px; overflow-y: auto; flex: 1;">
+                        <div class="card-header" style="margin-bottom: 22px; display: flex; justify-content: space-between; align-items: flex-start;">
                             <div>
                                 <h2>Create a new license</h2>
-                                <p class="modal-copy">Styled after the dashboard you referenced, while still writing directly to your Supabase `license_keys` table.</p>
+                                <p class="modal-copy" style="margin: 4px 0 0; color: var(--muted); font-size: 0.88rem;">Generate random keys or create a custom one.</p>
                             </div>
-                            <button id="close-modal-btn" class="ghost-btn" type="button">Close</button>
+                            <button id="close-modal-btn" class="ghost-btn" type="button" style="min-height: 36px; padding: 0 12px; border-radius: 10px;">✕</button>
                         </div>
 
-                        <div class="stack-card">
+                        <div class="stack-card" style="display: grid; gap: 18px;">
                             <div class="field">
-                                <label>License Type</label>
+                                <label>Creation Mode</label>
                                 <div class="mode-switch">
-                                    <label class="mode-option" for="license-mode-generated">
-                                        <input id="license-mode-generated" type="radio" name="license-mode" value="generated" checked>
+                                    <label class="mode-option" style="cursor: pointer;">
+                                        <input type="radio" name="license-mode" value="generated" checked>
                                         <span>Generated</span>
                                     </label>
-                                    <label class="mode-option" for="license-mode-custom">
-                                        <input id="license-mode-custom" type="radio" name="license-mode" value="custom">
+                                    <label class="mode-option" style="cursor: pointer;">
+                                        <input type="radio" name="license-mode" value="custom">
                                         <span>Custom</span>
                                     </label>
                                 </div>
                             </div>
 
-                            <div id="amount-field" class="field">
-                                <label for="license-amount">License Amount</label>
-                                <input id="license-amount" type="number" min="1" value="1">
-                            </div>
-
-                            <div id="custom-field" class="field hidden">
-                                <label for="custom-license-key">Custom License Key</label>
-                                <input id="custom-license-key" type="text" placeholder="Enter the exact key you want">
-                                <small>This creates the license exactly as typed.</small>
-                            </div>
-
-                            <div id="generated-fields" class="stack-card">
+                            <!-- Generated Mode Fields -->
+                            <div id="generated-fields" class="stack-card" style="display: grid; gap: 18px;">
                                 <div class="field">
-                                    <label for="license-mask">License Mask</label>
-                                    <input id="license-mask" type="text">
-                                    <small>Use `*` for random characters and keep your separators exactly how you want them displayed.</small>
+                                    <label for="license-mask">Key Mask</label>
+                                    <input id="license-mask" type="text" placeholder="******-******-******">
+                                    <small>Use * as random characters. Example: INDICA-****-****</small>
                                 </div>
 
                                 <div class="toggle-grid">
-                                    <label class="toggle-chip" for="use-lowercase">
-                                        <input id="use-lowercase" type="checkbox">
-                                        <span>Lowercase Letters</span>
-                                    </label>
-                                    <label class="toggle-chip" for="use-uppercase">
+                                    <label class="toggle-chip" style="cursor: pointer;">
                                         <input id="use-uppercase" type="checkbox" checked>
                                         <span>Uppercase Letters</span>
+                                    </label>
+                                    <label class="toggle-chip" style="cursor: pointer;">
+                                        <input id="use-lowercase" type="checkbox">
+                                        <span>Lowercase Letters</span>
                                     </label>
                                 </div>
                             </div>
 
-                            <div class="field">
-                                <label for="subscription-level">Subscription Level</label>
-                                <select id="subscription-level">
-                                    <option value="1">1 (default)</option>
-                                    <option value="2">2 - Pro</option>
-                                    <option value="3">3 - Enterprise</option>
-                                </select>
+                            <!-- Custom Mode Fields -->
+                            <div id="custom-field" class="field hidden">
+                                <label for="custom-license-key">Custom License Key</label>
+                                <input id="custom-license-key" type="text" placeholder="Enter custom license key">
                             </div>
 
-                            <div class="field">
-                                <label for="license-password">Account Password</label>
-                                <input id="license-password" type="text" placeholder="Set password for this key">
-                            </div>
-
-                            <div class="field">
-                                <label for="license-note">License Note</label>
-                                <textarea id="license-note" placeholder="Internal note for this batch"></textarea>
+                            <div class="row-2">
+                                <div id="amount-field" class="field">
+                                    <label for="license-amount">Amount</label>
+                                    <input id="license-amount" type="number" min="1" max="100" value="1">
+                                </div>
+                                <div class="field">
+                                    <label for="license-password">Password (Optional)</label>
+                                    <input id="license-password" type="password" placeholder="Key password">
+                                </div>
                             </div>
 
                             <div class="row-2">
                                 <div class="field">
-                                    <label for="expiry-unit">Expiry Unit</label>
+                                    <label for="expiry-duration">Duration</label>
+                                    <input id="expiry-duration" type="number" min="1" value="30">
+                                </div>
+                                <div class="field">
+                                    <label for="expiry-unit">Duration Unit</label>
                                     <select id="expiry-unit">
-                                        <option value="days">Days</option>
                                         <option value="hours">Hours</option>
+                                        <option value="days" selected>Days</option>
                                         <option value="months">Months</option>
                                         <option value="years">Years</option>
                                     </select>
                                 </div>
+                            </div>
+
+                            <div class="row-2">
                                 <div class="field">
-                                    <label for="expiry-duration">Expiry Duration</label>
-                                    <input id="expiry-duration" type="number" min="0" value="1">
+                                    <label for="subscription-level">Subscription Level</label>
+                                    <input id="subscription-level" type="text" value="1">
                                 </div>
+                                <div class="field">
+                                    <label for="initial-points">Initial Points</label>
+                                    <input id="initial-points" type="number" step="any" min="0" value="100.000">
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <label for="license-note">License Note (Optional)</label>
+                                <textarea id="license-note" placeholder="Write internal notes..."></textarea>
                             </div>
                         </div>
                     </div>
-
-                    <div class="modal-footer">
-                        <button id="cancel-modal-btn" class="secondary-btn" type="button">Cancel</button>
-                        <button id="generate-btn" class="primary-btn" type="button">Create License</button>
+                    <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px; padding: 18px 24px; border-top: 1px solid var(--border); background: rgba(255, 255, 255, 0.01);">
+                        <button id="cancel-modal-btn" class="secondary-btn" type="button" style="min-height: 40px; padding: 0 16px;">Cancel</button>
+                        <button id="generate-btn" class="primary-btn" type="button" style="min-height: 40px; padding: 0 20px;">Create Key</button>
                     </div>
                 </section>
             </div>
