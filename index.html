@@ -10,29 +10,28 @@
     <style>
         :root {
             color-scheme: dark;
-            --bg: #050608;
-            --panel: #0d0f13;
-            --panel-2: #11141a;
-            --panel-3: #181b21;
-            --panel-soft: rgba(255, 255, 255, 0.035);
-            --border: rgba(255, 255, 255, 0.08);
-            --border-strong: rgba(255, 255, 255, 0.12);
-            --text: #f3f5f7;
-            --muted: #9298a4;
-            --muted-2: #707682;
+            --bg: #0d1010;
+            --bg-deep: #0a0c0c;
+            --sidebar: #0f1111;
+            --panel: #141616;
+            --panel-2: #1a1c1c;
+            --hover: rgba(255, 255, 255, 0.04);
+            --border: rgba(255, 255, 255, 0.07);
+            --border-strong: rgba(255, 255, 255, 0.14);
+            --text: #ededed;
+            --muted: #9aa1a8;
+            --muted-2: #6d747c;
             --blue: #2563eb;
             --blue-strong: #1d4ed8;
             --blue-soft: rgba(37, 99, 235, 0.14);
-            --green: #16a34a;
-            --green-soft: rgba(34, 197, 94, 0.14);
-            --red: #dc2626;
-            --red-soft: rgba(239, 68, 68, 0.14);
+            --green: #22c55e;
+            --green-soft: rgba(34, 197, 94, 0.12);
+            --red: #ef4444;
+            --red-soft: rgba(239, 68, 68, 0.12);
             --amber: #f59e0b;
-            --amber-soft: rgba(245, 158, 11, 0.14);
-            --shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
-            --radius-xl: 26px;
-            --radius-lg: 20px;
-            --radius-md: 14px;
+            --amber-soft: rgba(245, 158, 11, 0.12);
+            --font-mono: ui-monospace, 'Cascadia Mono', 'JetBrains Mono', Consolas, monospace;
+            --shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
         }
 
         * {
@@ -43,12 +42,10 @@
         body {
             margin: 0;
             min-height: 100%;
-            background:
-                radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), transparent 24%),
-                radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.05), transparent 28%),
-                var(--bg);
+            background: var(--bg);
             color: var(--text);
-            font-family: 'Manrope', sans-serif;
+            font-family: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            font-size: 14.5px;
         }
 
         button,
@@ -60,84 +57,164 @@
 
         button {
             cursor: pointer;
-            border: 0;
         }
 
         .hidden {
             display: none !important;
         }
 
-        .app-shell {
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #26292b;
+            border-radius: 99px;
+            border: 2px solid var(--bg);
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        /* ---------- Layout ---------- */
+        .app {
+            display: flex;
             min-height: 100vh;
-            display: block;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            width: 240px;
+            flex: 0 0 240px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 20px 14px;
+            background: var(--sidebar);
+            border-right: 1px solid var(--border);
         }
 
         .brand {
             display: flex;
             align-items: center;
-            gap: 14px;
-            margin-bottom: 28px;
+            gap: 12px;
+            padding: 4px 8px 18px;
         }
 
         .brand-badge {
-            width: 48px;
-            height: 48px;
-            border-radius: 16px;
+            width: 40px;
+            height: 40px;
+            border-radius: 11px;
             display: grid;
             place-items: center;
             background: linear-gradient(160deg, #f8fafc 0%, #8aa5ff 100%);
-            color: #050608;
+            color: #0d1010;
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.1rem;
             font-weight: 700;
-            box-shadow: 0 14px 28px rgba(37, 99, 235, 0.2);
+            font-size: 1rem;
         }
 
         .brand-name {
             margin: 0;
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.45rem;
-            letter-spacing: -0.04em;
+            font-size: 1.2rem;
+            letter-spacing: -0.03em;
         }
 
         .brand-copy {
-            margin: 2px 0 0;
-            color: var(--muted);
-            font-size: 0.82rem;
+            margin: 1px 0 0;
+            color: var(--muted-2);
+            font-size: 0.74rem;
         }
 
-        .workspace {
-            position: relative;
-            min-width: 0;
-            width: min(1400px, 100%);
-            margin: 0 auto;
-            padding: 24px 24px 34px;
+        .nav-label {
+            padding: 14px 12px 6px;
+            font-size: 0.66rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted-2);
         }
 
-        .topbar {
+        .nav-item {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 18px;
-            padding-bottom: 22px;
+            gap: 11px;
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 9px;
+            border: 1px solid transparent;
+            background: none;
+            color: var(--muted);
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+        }
+
+        .nav-item:hover {
+            background: var(--hover);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: var(--blue-soft);
+            border-color: rgba(37, 99, 235, 0.3);
+            color: #fff;
+        }
+
+        .nav-item svg {
+            width: 17px;
+            height: 17px;
+            flex: 0 0 auto;
+        }
+
+        .sidebar-foot {
+            margin-top: auto;
+            padding: 14px 12px 4px;
+            border-top: 1px solid var(--border);
+            color: var(--muted-2);
+            font-size: 0.74rem;
+            line-height: 1.6;
+        }
+
+        .main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* ---------- Topbar ---------- */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 26px 14px;
+            background: rgba(13, 16, 16, 0.88);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border);
         }
 
         .search-shell {
             flex: 1;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             min-width: 0;
-            padding: 0 16px;
-            height: 58px;
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.03);
+            height: 44px;
+            padding: 0 14px;
+            border-radius: 10px;
+            background: var(--panel);
             border: 1px solid var(--border);
         }
 
         .search-shell svg {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             color: var(--muted-2);
             flex: 0 0 auto;
         }
@@ -148,364 +225,707 @@
             outline: none;
             background: transparent;
             color: var(--text);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
         .search-shell input::placeholder,
         .field input::placeholder,
         .field textarea::placeholder {
-            color: #66707d;
+            color: #5c636b;
         }
 
         .topbar-right {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .status-row {
             display: flex;
-            flex-wrap: wrap;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
         .status-pill {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px 14px;
+            gap: 7px;
+            padding: 8px 12px;
             border-radius: 999px;
-            font-size: 0.82rem;
-            font-weight: 600;
-            border: 1px solid transparent;
-            background: rgba(255, 255, 255, 0.04);
-            color: #dfe3ea;
+            font-size: 0.78rem;
+            font-weight: 700;
+            border: 1px solid var(--border);
+            background: var(--panel-2);
+            color: #d5dae0;
+            white-space: nowrap;
         }
 
         .status-pill::before {
             content: "";
-            width: 8px;
-            height: 8px;
-            border-radius: 999px;
+            width: 7px;
+            height: 7px;
+            border-radius: 99px;
             background: currentColor;
-            opacity: 0.95;
         }
 
         .status-pill.success {
+            color: #7ee2a8;
             background: var(--green-soft);
-            color: #71e3a0;
-            border-color: rgba(34, 197, 94, 0.2);
+            border-color: rgba(34, 197, 94, 0.25);
         }
 
         .status-pill.warning {
+            color: #ffd28f;
             background: var(--amber-soft);
-            color: #f5cb74;
-            border-color: rgba(245, 158, 11, 0.2);
+            border-color: rgba(245, 158, 11, 0.25);
         }
 
         .status-pill.neutral {
-            color: #cfd5dd;
-            border-color: var(--border);
+            color: #b9c0c9;
         }
 
-        .ghost-btn,
-        .secondary-btn,
-        .primary-btn {
-            min-height: 46px;
-            padding: 0 18px;
-            border-radius: 14px;
+        /* ---------- Buttons ---------- */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 38px;
+            padding: 0 16px;
+            border-radius: 9px;
             font-weight: 700;
-            transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+            font-size: 0.88rem;
+            border: 1px solid transparent;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
         }
 
-        .ghost-btn,
-        .secondary-btn {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--border);
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn.primary {
+            background: var(--blue);
+            color: #fff;
+        }
+
+        .btn.primary:hover {
+            background: var(--blue-strong);
+        }
+
+        .btn.ghost {
+            background: var(--panel-2);
+            border-color: var(--border);
             color: var(--text);
         }
 
-        .ghost-btn:hover,
-        .secondary-btn:hover {
-            transform: translateY(-1px);
-            background: rgba(255, 255, 255, 0.06);
+        .btn.ghost:hover {
+            background: #202323;
             border-color: var(--border-strong);
         }
 
-        .primary-btn {
-            background: linear-gradient(180deg, var(--blue) 0%, var(--blue-strong) 100%);
-            color: #ffffff;
-            box-shadow: 0 16px 36px rgba(37, 99, 235, 0.28);
+        .btn.danger-ghost {
+            background: var(--red-soft);
+            border-color: rgba(239, 68, 68, 0.25);
+            color: #ffb4b4;
         }
 
-        .primary-btn:hover {
-            transform: translateY(-1px);
+        .btn.danger-ghost:hover {
+            background: rgba(239, 68, 68, 0.2);
         }
 
-        .dashboard {
+        .btn.danger-solid {
+            background: var(--red);
+            color: #fff;
+        }
+
+        .btn.danger-solid:hover {
+            background: #dc2626;
+        }
+
+        .btn.sm {
+            min-height: 30px;
+            padding: 0 11px;
+            font-size: 0.78rem;
+            border-radius: 8px;
+        }
+
+        .btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 0.9rem;
+            flex: 0 0 auto;
+        }
+
+        .icon-btn:hover {
+            color: var(--text);
+            border-color: var(--border-strong);
+        }
+
+        /* ---------- Page ---------- */
+        .page {
+            padding: 22px 26px 40px;
             display: grid;
             gap: 18px;
         }
 
-        .hero-card,
-        .stat-card,
-        .panel-card,
-        .connect-card,
-        .modal-backdrop,
-        .access-card {
-            background: linear-gradient(180deg, rgba(20, 23, 29, 0.98), rgba(11, 13, 18, 0.98));
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-        }
-
-        .hero-card {
+        .page-head {
             display: flex;
-            align-items: flex-start;
+            align-items: flex-end;
             justify-content: space-between;
-            gap: 20px;
-            padding: 26px 28px;
-            border-radius: var(--radius-xl);
+            gap: 16px;
+            flex-wrap: wrap;
         }
 
-        .eyebrow {
-            margin: 0 0 10px;
-            color: var(--muted-2);
-            font-size: 0.82rem;
-        }
-
-        .hero-card h1 {
-            font-size: clamp(2rem, 3vw, 2.7rem);
-            margin-bottom: 8px;
-        }
-
-        .hero-card p {
+        .page-head h1 {
             margin: 0;
-            color: var(--muted);
-            max-width: 680px;
-            line-height: 1.6;
+            font-size: 1.6rem;
+            letter-spacing: -0.03em;
         }
 
-        .hero-actions {
+        .page-head .eyebrow {
+            margin: 0 0 6px;
+            color: var(--muted-2);
+            font-size: 0.76rem;
+        }
+
+        .page-head .sub {
+            margin: 8px 0 0;
+            color: var(--muted);
+            max-width: 640px;
+            line-height: 1.55;
+        }
+
+        .page-actions {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
         }
 
+        /* ---------- Stats ---------- */
         .stat-grid {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 14px;
         }
 
         .stat-card {
-            padding: 22px;
-            border-radius: 22px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px;
         }
 
         .stat-label {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 10px;
+            gap: 8px;
             color: var(--muted);
-            font-size: 0.88rem;
+            font-size: 0.82rem;
         }
 
         .stat-value {
-            margin-top: 18px;
-            font-size: clamp(1.8rem, 2vw, 2.5rem);
+            margin-top: 14px;
+            font-size: 1.8rem;
             font-weight: 800;
-            letter-spacing: -0.05em;
+            letter-spacing: -0.04em;
+            font-variant-numeric: tabular-nums;
         }
 
         .stat-note {
-            margin-top: 8px;
+            margin-top: 6px;
             color: var(--muted-2);
-            font-size: 0.8rem;
+            font-size: 0.74rem;
         }
 
-        .panel-card {
-            border-radius: var(--radius-xl);
-            padding: 22px;
+        /* ---------- Panel / table ---------- */
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .panel-head h3 {
+            margin: 0;
+            font-size: 1.02rem;
+        }
+
+        .panel-head .hint {
+            margin: 3px 0 0;
+            color: var(--muted-2);
+            font-size: 0.78rem;
+        }
+
+        .panel-tools {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .select {
+            height: 36px;
+            max-width: 240px;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+            background: var(--panel-2);
+            color: var(--text);
+            padding: 0 10px;
+            font-size: 0.84rem;
+            font-weight: 600;
+            outline: none;
+        }
+
+        .select:focus {
+            border-color: rgba(37, 99, 235, 0.5);
+        }
+
+        .chip-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .chip {
+            padding: 7px 14px;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            background: var(--panel-2);
+            color: var(--muted);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: color 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+        }
+
+        .chip:hover {
+            color: var(--text);
+            border-color: var(--border-strong);
+        }
+
+        .chip.active {
+            background: var(--blue-soft);
+            color: #fff;
+            border-color: rgba(37, 99, 235, 0.4);
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .lic-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        .lic-table th {
+            text-align: left;
+            padding: 10px 14px;
+            color: var(--muted-2);
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .lic-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.045);
+            vertical-align: middle;
+            font-size: 0.86rem;
+        }
+
+        .lic-table tbody tr {
+            transition: background 0.12s ease;
+        }
+
+        .lic-table tbody tr:hover {
+            background: var(--hover);
+        }
+
+        .lic-table tbody tr.row-selected {
+            background: rgba(37, 99, 235, 0.07);
+        }
+
+        .lic-table tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .row-check,
+        #select-all {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--blue);
+            cursor: pointer;
+        }
+
+        .key-cell {
             min-width: 0;
         }
 
-        .card-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 18px;
-            margin-bottom: 18px;
-        }
-
-        .card-header p {
-            margin: 6px 0 0;
-            color: var(--muted);
-            font-size: 0.9rem;
-        }
-
-        .inventory-meta {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 88px;
-            min-height: 38px;
-            padding: 0 14px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--border);
-            color: #dfe4eb;
-            font-weight: 700;
-        }
-
-        .license-list {
-            display: grid;
-            gap: 12px;
-        }
-
-        .license-row {
-            display: grid;
-            gap: 14px;
-            padding: 18px;
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.025);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(120px, 0.55fr)) auto;
-            align-items: start;
-        }
-
-        .license-key {
-            font-family: 'Space Grotesk', monospace;
-            font-size: 0.92rem;
-            line-height: 1.45;
+        .key-text {
+            font-family: var(--font-mono);
+            font-size: 0.84rem;
+            cursor: pointer;
             word-break: break-all;
         }
 
-        .mini-label {
-            margin-bottom: 6px;
-            font-size: 0.72rem;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
+        .key-text:hover {
+            color: var(--blue);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .key-note {
+            margin-top: 5px;
+            color: var(--muted-2);
+            font-size: 0.76rem;
+            font-style: italic;
+            max-width: 240px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .cell-sub {
+            color: var(--muted);
+            font-size: 0.82rem;
+            white-space: nowrap;
+        }
+
+        .cell-muted {
             color: var(--muted-2);
         }
 
-        .mini-copy {
-            color: #e7ebf1;
-            font-size: 0.9rem;
+        .cell-level {
+            cursor: pointer;
+            font-weight: 700;
+            color: #b9c0c9;
+            padding: 4px 9px;
+            border-radius: 7px;
+            background: var(--panel-2);
+            border: 1px solid var(--border);
+            white-space: nowrap;
         }
 
-        .mini-copy.muted {
+        .cell-level:hover {
+            border-color: rgba(37, 99, 235, 0.4);
+            color: #fff;
+        }
+
+        .cell-input {
+            width: 110px;
+            border-radius: 8px;
+            border: 1px solid rgba(37, 99, 235, 0.5);
+            background: var(--bg-deep);
+            color: var(--text);
+            padding: 6px 9px;
+            font-size: 0.84rem;
+            outline: none;
+        }
+
+        .expire-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .expire-caption {
+            color: var(--muted-2);
+            font-size: 0.72rem;
+            font-family: var(--font-mono);
+        }
+
+        .hwid-chip {
+            font-family: var(--font-mono);
+            font-size: 0.76rem;
             color: var(--muted);
+            background: var(--panel-2);
+            border: 1px solid var(--border);
+            padding: 3px 8px;
+            border-radius: 7px;
+            white-space: nowrap;
         }
 
-        .license-note {
-            margin-top: 10px;
+        .batch-chip {
+            cursor: pointer;
+        }
+
+        .batch-chip:hover {
+            border-color: rgba(37, 99, 235, 0.45);
+            color: #fff;
+        }
+
+        .status-toggle {
+            border: 1px solid transparent;
+            border-radius: 999px;
+            padding: 5px 12px;
+            font-size: 0.76rem;
+            font-weight: 800;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .status-toggle.on {
+            background: var(--green-soft);
+            color: #7ee2a8;
+            border-color: rgba(34, 197, 94, 0.25);
+        }
+
+        .status-toggle.off {
+            background: var(--red-soft);
+            color: #ff9d9d;
+            border-color: rgba(239, 68, 68, 0.25);
+        }
+
+        .row-actions {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-end;
+            white-space: nowrap;
+        }
+
+        .row-btn {
+            min-height: 28px;
+            padding: 0 10px;
+            border-radius: 8px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            background: var(--panel-2);
+            border: 1px solid var(--border);
             color: var(--muted);
-            font-size: 0.85rem;
-            line-height: 1.5;
+            cursor: pointer;
         }
 
+        .row-btn:hover {
+            color: var(--text);
+            border-color: var(--border-strong);
+        }
+
+        .row-btn.danger {
+            color: #ff9d9d;
+            background: var(--red-soft);
+            border-color: rgba(239, 68, 68, 0.22);
+        }
+
+        .row-btn.danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .table-foot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding: 12px 18px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.82rem;
+        }
+
+        .pager {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ---------- Selection bar ---------- */
+        .selection-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 14px 18px 0;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: rgba(37, 99, 235, 0.12);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+        }
+
+        .selection-bar .sel-count {
+            font-weight: 800;
+            margin-right: auto;
+            color: #fff;
+            font-size: 0.86rem;
+        }
+
+        /* ---------- Badges / empty ---------- */
         .badge {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            min-height: 30px;
-            padding: 0 12px;
+            gap: 6px;
+            min-height: 24px;
+            padding: 0 10px;
             border-radius: 999px;
-            font-size: 0.78rem;
-            font-weight: 700;
+            font-size: 0.74rem;
+            font-weight: 800;
             border: 1px solid transparent;
             white-space: nowrap;
         }
 
         .badge.success {
-            color: #78e6a9;
+            color: #7ee2a8;
             background: var(--green-soft);
-            border-color: rgba(34, 197, 94, 0.2);
+            border-color: rgba(34, 197, 94, 0.25);
         }
 
         .badge.danger {
-            color: #ff9a9a;
+            color: #ff9d9d;
             background: var(--red-soft);
-            border-color: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.25);
         }
 
         .badge.warning {
-            color: #ffd790;
+            color: #ffd28f;
             background: var(--amber-soft);
-            border-color: rgba(245, 158, 11, 0.2);
+            border-color: rgba(245, 158, 11, 0.25);
         }
 
         .badge.neutral {
-            color: #d7dce4;
-            background: rgba(255, 255, 255, 0.045);
+            color: #b9c0c9;
+            background: var(--panel-2);
             border-color: var(--border);
         }
 
-        .row-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: flex-end;
+        .empty-state {
+            padding: 44px 20px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.88rem;
         }
 
-        .inline-btn {
-            min-height: 36px;
-            padding: 0 12px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 0.82rem;
-            background: rgba(255, 255, 255, 0.045);
+        /* ---------- Batches ---------- */
+        .batches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+            gap: 16px;
+            padding: 16px;
+        }
+
+        .batch-card {
+            background: var(--panel);
             border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px;
+            display: grid;
+            gap: 14px;
+            transition: border-color 0.15s ease;
+        }
+
+        .batch-card:hover {
+            border-color: var(--border-strong);
+        }
+
+        .batch-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .batch-name {
+            margin: 0;
+            font-size: 1.05rem;
+            letter-spacing: -0.02em;
+            word-break: break-word;
+        }
+
+        .batch-meta {
+            margin-top: 5px;
+            color: var(--muted);
+            font-size: 0.8rem;
+            line-height: 1.5;
+        }
+
+        .batch-stat {
+            text-align: right;
+            color: var(--muted-2);
+            font-size: 0.74rem;
+            line-height: 1.7;
+            white-space: nowrap;
+        }
+
+        .batch-stat b {
             color: var(--text);
         }
 
-        .inline-btn.danger {
-            color: #ffb1b1;
-            background: rgba(239, 68, 68, 0.08);
-            border-color: rgba(239, 68, 68, 0.18);
+        .batch-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            border-top: 1px solid var(--border);
+            padding-top: 14px;
         }
 
-        .empty-state {
-            padding: 34px 20px;
-            border-radius: 18px;
-            text-align: center;
-            color: var(--muted);
-            background: rgba(255, 255, 255, 0.025);
-            border: 1px dashed rgba(255, 255, 255, 0.08);
-        }
-
-        .stack-card {
+        /* ---------- Fields / create modal ---------- */
+        .stack {
             display: grid;
-            gap: 18px;
+            gap: 16px;
         }
 
         .field {
             display: grid;
-            gap: 8px;
+            gap: 7px;
         }
 
         .field label {
-            color: #b4bbc6;
-            font-size: 0.9rem;
+            color: #b6bdc6;
+            font-size: 0.84rem;
+            font-weight: 600;
         }
 
         .field input,
         .field select,
         .field textarea {
             width: 100%;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            background: #101216;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg-deep);
             color: var(--text);
-            padding: 14px 16px;
+            padding: 11px 13px;
             outline: none;
-            transition: border-color 0.18s ease, box-shadow 0.18s ease;
+            font-size: 0.9rem;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
 
         .field textarea {
-            min-height: 92px;
+            min-height: 84px;
             resize: vertical;
         }
 
@@ -524,139 +944,138 @@
 
         .row-2 {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 14px;
-        }
-
-        .toggle-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
 
-        .mode-switch {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
-        }
-
-        .mode-option {
+        .gen-row {
             display: flex;
-            align-items: center;
+            gap: 8px;
+        }
+
+        .gen-row input {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .gen-row .btn {
+            padding: 0 14px;
+            white-space: nowrap;
+        }
+
+        .mode-switch,
+        .toggle-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
-            padding: 14px 15px;
-            border-radius: 14px;
-            background: #101216;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            color: #dfe5ed;
         }
 
-        .mode-option input {
-            margin: 0;
-            accent-color: var(--blue);
-        }
-
+        .mode-option,
         .toggle-chip {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 14px 15px;
-            border-radius: 14px;
-            background: #101216;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            color: #dfe5ed;
+            padding: 12px 14px;
+            border-radius: 10px;
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            color: #d5dae0;
+            cursor: pointer;
+            font-size: 0.86rem;
+            font-weight: 600;
         }
 
+        .mode-option input,
         .toggle-chip input {
-            width: 16px;
-            height: 16px;
-            margin: 0;
+            width: 15px;
+            height: 15px;
             accent-color: var(--blue);
+            margin: 0;
         }
 
-        .connect-shell {
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
-            padding: 32px 20px;
+        .mode-option:has(input:checked) {
+            border-color: rgba(37, 99, 235, 0.5);
+            background: var(--blue-soft);
+            color: #fff;
         }
 
-        .connect-card {
-            width: min(680px, 100%);
-            padding: 34px;
-            border-radius: 32px;
-        }
-
-        .connect-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 26px;
-        }
-
-        .connect-header .brand-badge {
-            width: 58px;
-            height: 58px;
-            border-radius: 18px;
-        }
-
-        .connect-card p {
-            margin: 8px 0 0;
-            color: var(--muted);
-            line-height: 1.6;
-        }
-
+        /* ---------- Modals ---------- */
         .modal-backdrop {
             position: fixed;
             inset: 0;
             display: grid;
             place-items: center;
-            padding: 32px 18px;
-            background: rgba(4, 6, 8, 0.7);
+            padding: 28px 16px;
+            background: rgba(4, 6, 8, 0.72);
             backdrop-filter: blur(8px);
-            z-index: 30;
+            z-index: 60;
         }
 
         .modal-panel {
-            width: min(520px, calc(100vw - 36px));
-            border-radius: 18px;
+            width: min(540px, 100%);
+            max-height: min(90vh, 760px);
+            background: var(--panel-2);
+            border: 1px solid var(--border-strong);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .modal-body {
-            padding: 26px 22px 18px;
+            padding: 22px;
+            overflow-y: auto;
         }
 
-        .modal-copy {
-            margin: 10px 0 0;
+        .modal-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .modal-head h2 {
+            margin: 0;
+            font-size: 1.15rem;
+            letter-spacing: -0.02em;
+        }
+
+        .modal-head p {
+            margin: 4px 0 0;
             color: var(--muted);
-            line-height: 1.55;
+            font-size: 0.84rem;
+            line-height: 1.5;
         }
 
-        .modal-footer {
+        .modal-foot {
             display: flex;
             justify-content: flex-end;
-            gap: 12px;
-            padding: 18px 22px;
+            gap: 10px;
+            padding: 14px 22px;
             border-top: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.015);
         }
 
+        /* ---------- Access overlay ---------- */
         .access-overlay {
             position: fixed;
             inset: 0;
             display: grid;
             place-items: center;
-            padding: 28px 18px;
-            background: rgba(4, 6, 8, 0.82);
-            backdrop-filter: blur(10px);
-            z-index: 40;
+            padding: 28px 16px;
+            background: var(--bg-deep);
+            z-index: 80;
         }
 
         .access-card {
-            width: min(520px, calc(100vw - 36px));
-            padding: 28px 24px;
-            border-radius: 24px;
+            width: min(560px, 100%);
+            background: var(--panel);
+            border: 1px solid var(--border-strong);
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6);
         }
 
         .access-card .brand {
@@ -667,36 +1086,49 @@
             margin: 0 0 22px;
             color: var(--muted);
             line-height: 1.6;
+            font-size: 0.9rem;
         }
 
+        .access-copy code {
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1px 6px;
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+        }
+
+        /* ---------- Toasts ---------- */
         .toast-stack {
             position: fixed;
-            right: 20px;
-            bottom: 20px;
+            right: 18px;
+            bottom: 18px;
             display: grid;
             gap: 10px;
-            z-index: 80;
+            z-index: 100;
         }
 
         .toast {
-            min-width: 260px;
+            min-width: 250px;
             max-width: 360px;
-            padding: 14px 16px;
-            border-radius: 16px;
+            padding: 13px 16px;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 0.86rem;
+            font-weight: 600;
             border: 1px solid transparent;
-            color: #ffffff;
-            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
             animation: toast-in 0.18s ease;
         }
 
         .toast.success {
-            background: linear-gradient(180deg, rgba(22, 163, 74, 0.96), rgba(21, 128, 61, 0.96));
-            border-color: rgba(134, 239, 172, 0.24);
+            background: #15803d;
+            border-color: rgba(134, 239, 172, 0.3);
         }
 
         .toast.error {
-            background: linear-gradient(180deg, rgba(220, 38, 38, 0.96), rgba(185, 28, 28, 0.96));
-            border-color: rgba(254, 202, 202, 0.22);
+            background: #b91c1c;
+            border-color: rgba(254, 202, 202, 0.3);
         }
 
         @keyframes toast-in {
@@ -710,56 +1142,53 @@
             }
         }
 
-        @media (max-width: 1180px) {
-            .workspace {
-                padding-top: 18px;
+        /* ---------- Responsive ---------- */
+        @media (max-width: 900px) {
+            .app {
+                flex-direction: column;
             }
-            .stat-grid,
-            .license-row {
-                grid-template-columns: 1fr;
+            .sidebar {
+                position: static;
+                height: auto;
+                width: 100%;
+                flex: none;
+                flex-direction: row;
+                align-items: center;
+                gap: 8px;
+                padding: 12px 16px;
+                border-right: 0;
+                border-bottom: 1px solid var(--border);
+                overflow-x: auto;
             }
-            .row-actions {
-                justify-content: flex-start;
+            .brand {
+                padding: 0 8px 0 0;
             }
-        }
-
-        @media (max-width: 720px) {
-            .topbar,
-            .hero-card,
-            .card-header,
-            .connect-header {
+            .nav-label,
+            .sidebar-foot {
+                display: none;
+            }
+            .nav-item {
+                width: auto;
+                padding: 8px 14px;
+            }
+            .topbar {
                 flex-direction: column;
                 align-items: stretch;
+                padding: 14px 16px;
             }
-            .topbar-right,
-            .hero-actions,
-            .connect-actions,
-            .status-row {
-                width: 100%;
+            .topbar-right {
+                justify-content: space-between;
             }
-            .status-row,
-            .hero-actions,
-            .connect-actions {
-                justify-content: stretch;
-            }
-            .ghost-btn,
-            .secondary-btn,
-            .primary-btn {
-                width: 100%;
+            .page {
+                padding: 18px 16px 32px;
             }
             .row-2,
+            .mode-switch,
             .toggle-grid {
                 grid-template-columns: 1fr;
             }
-            .workspace {
-                padding-left: 16px;
-                padding-right: 16px;
-            }
-            .connect-card {
-                padding: 24px;
-            }
-            .modal-panel {
-                width: min(100%, calc(100vw - 24px));
+            .batch-stat {
+                text-align: left;
             }
         }
     </style>
@@ -768,11 +1197,22 @@
 
         const PROJECT_URL = 'https://mafafvjxkhtbyacpnswa.supabase.co'
         const DEFAULT_MASK = '******-******-******-******-******-******'
+        const PAGE_SIZE = 50
 
         let readClient = null
         let adminClient = null
         let currentKeys = []
         let currentSearch = ''
+        let currentFilter = 'all'
+        let currentBatch = ''
+        let currentPage = 1
+        let selectedKeys = new Set()
+        let activeView = 'licenses'
+        let pendingConfirm = null
+        let pendingInput = null
+        let pendingExtend = null
+
+        /* ---------- helpers ---------- */
 
         function escapeHtml(value = '') {
             return String(value)
@@ -793,7 +1233,6 @@
                 showToast('Service role key is required for create, update, and delete actions.', 'error')
                 return false
             }
-
             adminClient = createClient(PROJECT_URL, serviceRoleKey)
             return true
         }
@@ -805,7 +1244,6 @@
         function updateConnectionStatus(connected = false) {
             const node = document.getElementById('connection-status')
             if (!node) return
-
             node.innerHTML = connected
                 ? createStatusMarkup('Read Connected', 'success')
                 : createStatusMarkup('Read Access Needed', 'neutral')
@@ -838,46 +1276,60 @@
             const useLowercase = document.getElementById('use-lowercase').checked
             const useUppercase = document.getElementById('use-uppercase').checked
             let pool = '23456789'
-
             if (useUppercase) pool += 'ABCDEFGHJKLMNPQRSTUVWXYZ'
             if (useLowercase) pool += 'abcdefghijkmnopqrstuvwxyz'
-
             return pool
         }
 
         function generateLicenseKeyFromMask(mask, pool) {
             return mask.split('').map((char) => {
-                if (char === '*') {
-                    return pool[Math.floor(Math.random() * pool.length)]
-                }
+                if (char === '*') return pool[Math.floor(Math.random() * pool.length)]
                 return char
             }).join('')
+        }
+
+        function generatePassword(length = 12) {
+            // Letters + numbers, no ambiguous chars (0/O, 1/l/I)
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789'
+            let out = ''
+            for (let i = 0; i < length; i++) out += chars[Math.floor(Math.random() * chars.length)]
+            return out
         }
 
         function parseExpirationDuration(value, unit) {
             const amount = Number(value)
             if (!Number.isFinite(amount) || amount <= 0) return null
-
             const now = new Date()
-
             switch (unit) {
-                case 'hours':
-                    now.setHours(now.getHours() + amount)
-                    break
-                case 'days':
-                    now.setDate(now.getDate() + amount)
-                    break
-                case 'months':
-                    now.setMonth(now.getMonth() + amount)
-                    break
-                case 'years':
-                    now.setFullYear(now.getFullYear() + amount)
-                    break
-                default:
-                    return null
+                case 'hours': now.setHours(now.getHours() + amount); break
+                case 'days': now.setDate(now.getDate() + amount); break
+                case 'months': now.setMonth(now.getMonth() + amount); break
+                case 'years': now.setFullYear(now.getFullYear() + amount); break
+                default: return null
             }
-
             return now.toISOString()
+        }
+
+        function durationToDays(value, unit) {
+            const amount = Number(value)
+            if (!Number.isFinite(amount) || amount <= 0) return null
+            if (unit === 'hours') return amount / 24
+            if (unit === 'months') return amount * 30
+            if (unit === 'years') return amount * 365
+            return amount // days
+        }
+
+        function computeExtendedAt(existingAt, amount, unit) {
+            const base = (existingAt && !isExpired(existingAt)) ? new Date(existingAt) : new Date()
+            if (!Number.isFinite(Number(amount)) || Number(amount) <= 0) return null
+            switch (unit) {
+                case 'hours': base.setHours(base.getHours() + Number(amount)); break
+                case 'days': base.setDate(base.getDate() + Number(amount)); break
+                case 'months': base.setMonth(base.getMonth() + Number(amount)); break
+                case 'years': base.setFullYear(base.getFullYear() + Number(amount)); break
+                default: return null
+            }
+            return base.toISOString()
         }
 
         function formatShortDate(value) {
@@ -893,17 +1345,131 @@
             return Boolean(value) && new Date(value) < new Date()
         }
 
-        function openCreateModal() {
-            document.getElementById('modal-backdrop').classList.remove('hidden')
+        function keyIsExpired(key) {
+            if (!key.expires_at) return false
+            if (!key.hwid || String(key.hwid).trim() === '') return false
+            return new Date(key.expires_at) < new Date()
         }
 
-        function closeCreateModal() {
-            document.getElementById('modal-backdrop').classList.add('hidden')
+        function formatDurationFromMs(ms) {
+            if (!Number.isFinite(ms) || ms <= 0) return '0d 00:00:00'
+            const totalSeconds = Math.floor(ms / 1000)
+            const d = Math.floor(totalSeconds / 86400)
+            const h = Math.floor((totalSeconds % 86400) / 3600)
+            const m = Math.floor((totalSeconds % 3600) / 60)
+            const s = totalSeconds % 60
+            const pad = (n) => String(n).padStart(2, '0')
+            return d > 0 ? `${d}d ${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(h)}:${pad(m)}:${pad(s)}`
         }
+
+        function formatCountdown(expiresAt) {
+            if (!expiresAt) return 'Never'
+            const diff = new Date(expiresAt) - Date.now()
+            if (diff <= 0) return 'Expired'
+            return formatDurationFromMs(diff)
+        }
+
+        function tickCountdowns() {
+            document.querySelectorAll('[data-countdown]').forEach((el) => {
+                const diff = new Date(el.dataset.countdown) - Date.now()
+                if (diff <= 0) {
+                    el.textContent = 'Expired'
+                    el.className = 'badge danger'
+                } else {
+                    el.textContent = formatDurationFromMs(diff)
+                    el.className = 'badge ' + (diff < 7 * 86400000 ? 'warning' : 'neutral')
+                }
+            })
+        }
+
+        function truncateHwid(hwid) {
+            const s = String(hwid || '')
+            return s.length > 18 ? s.slice(0, 7) + '…' + s.slice(-7) : s
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-stack')
+            const toast = document.createElement('div')
+            toast.className = `toast ${type}`
+            toast.textContent = message
+            container.appendChild(toast)
+            setTimeout(() => toast.remove(), 2800)
+        }
+
+        function downloadFile(name, content, mime) {
+            const blob = new Blob([content], { type: mime })
+            const a = document.createElement('a')
+            a.href = URL.createObjectURL(blob)
+            a.download = name
+            document.body.appendChild(a)
+            a.click()
+            a.remove()
+            setTimeout(() => URL.revokeObjectURL(a.href), 2000)
+        }
+
+        function csvCell(v) {
+            const s = String(v ?? '')
+            return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s
+        }
+
+        /* ---------- modals ---------- */
+
+        function closeAllModals() {
+            ['modal-backdrop', 'confirm-backdrop', 'input-backdrop', 'extend-backdrop'].forEach((id) => {
+                document.getElementById(id).classList.add('hidden')
+            })
+            pendingConfirm = null
+            pendingInput = null
+            pendingExtend = null
+        }
+
+        function openCreateModal(focusBatch = false) {
+            closeAllModals()
+            populateBatchOptions(getBatches())
+            document.getElementById('license-batch').value = currentBatch || ''
+            document.getElementById('license-password').value = generatePassword()
+            document.getElementById('modal-backdrop').classList.remove('hidden')
+            if (focusBatch) setTimeout(() => document.getElementById('license-batch').focus(), 40)
+        }
+
+        function openConfirm({ title, message, confirmLabel = 'Confirm', danger = false, onConfirm }) {
+            closeAllModals()
+            document.getElementById('confirm-title').textContent = title
+            document.getElementById('confirm-message').textContent = message
+            const ok = document.getElementById('confirm-ok')
+            ok.textContent = confirmLabel
+            ok.className = danger ? 'btn danger-solid' : 'btn primary'
+            pendingConfirm = onConfirm
+            document.getElementById('confirm-backdrop').classList.remove('hidden')
+        }
+
+        function openInput({ title, label, value = '', type = 'text', placeholder = '', confirmLabel = 'Save', onConfirm }) {
+            closeAllModals()
+            document.getElementById('input-title').textContent = title
+            document.getElementById('input-label').textContent = label
+            const inp = document.getElementById('input-value')
+            inp.type = type
+            inp.value = value
+            inp.placeholder = placeholder
+            pendingInput = onConfirm
+            document.getElementById('input-backdrop').classList.remove('hidden')
+            setTimeout(() => inp.focus(), 40)
+        }
+
+        function openExtend({ title = 'Extend expiration', onConfirm }) {
+            closeAllModals()
+            document.getElementById('extend-title').textContent = title
+            document.getElementById('extend-duration').value = 30
+            document.getElementById('extend-unit').value = 'days'
+            pendingExtend = onConfirm
+            document.getElementById('extend-backdrop').classList.remove('hidden')
+            setTimeout(() => document.getElementById('extend-duration').focus(), 40)
+        }
+
+        /* ---------- connection ---------- */
 
         async function connectSupabase() {
             const anonKey = document.getElementById('supabase-key').value.trim()
-
             if (!anonKey) {
                 showToast('Paste your Supabase anon key to connect the benjAuth dashboard.', 'error')
                 return
@@ -932,7 +1498,6 @@
 
         async function verifyAdminKey() {
             if (!ensureAdminClient()) return
-
             try {
                 const { error } = await adminClient.from('license_keys').select('count', { count: 'exact', head: true })
                 if (error) throw error
@@ -944,6 +1509,322 @@
                 updateAdminStatus(false)
                 showToast('Service role validation failed: ' + err.message, 'error')
             }
+        }
+
+        /* ---------- data loading ---------- */
+
+        async function loadKeys() {
+            if (!readClient) return
+
+            try {
+                const { data, error } = await readClient
+                    .from('license_keys')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+
+                if (error) throw error
+
+                currentKeys = data || []
+                selectedKeys = new Set([...selectedKeys].filter((k) => currentKeys.some((c) => c.license_key === k)))
+
+                const batches = getBatches()
+                if (currentBatch && !batches.some((b) => b.name === currentBatch)) currentBatch = ''
+                populateBatchOptions(batches)
+
+                renderStats()
+                renderKeys()
+                renderBatches()
+            } catch (err) {
+                console.error(err)
+                showToast('Failed to load licenses: ' + err.message, 'error')
+            }
+        }
+
+        function getBatches() {
+            const map = new Map()
+            for (const key of currentKeys) {
+                const name = key.metadata?.batch
+                if (!name) continue
+                if (!map.has(name)) map.set(name, [])
+                map.get(name).push(key)
+            }
+
+            return [...map.entries()].map(([name, keys]) => ({
+                name,
+                keys,
+                count: keys.length,
+                active: keys.filter((k) => k.is_active).length,
+                expired: keys.filter((k) => keyIsExpired(k)).length,
+                created: keys.reduce((m, k) => {
+                    const t = k.created_at ? new Date(k.created_at).getTime() : 0
+                    return (m === 0 || (t && t < m)) ? t : m
+                }, 0)
+            })).sort((a, b) => b.count - a.count || b.created - a.created)
+        }
+
+        function batchKeys(name) {
+            return currentKeys.filter((k) => (k.metadata?.batch || '') === name)
+        }
+
+        function populateBatchOptions(batches) {
+            const sel = document.getElementById('batch-filter')
+            const cur = sel.value
+            sel.innerHTML = '<option value="">All batches</option>' +
+                batches.map((b) => `<option value="${escapeHtml(b.name)}">${escapeHtml(b.name)} (${b.count})</option>`).join('')
+            if (cur && batches.some((b) => b.name === cur)) sel.value = cur
+
+            const dl = document.getElementById('batch-list')
+            dl.innerHTML = batches.map((b) => `<option value="${escapeHtml(b.name)}"></option>`).join('')
+        }
+
+        /* ---------- stats / filtering ---------- */
+
+        function renderStats() {
+            const total = currentKeys.length
+            const active = currentKeys.filter((k) => k.is_active).length
+            const disabled = total - active
+            const expired = currentKeys.filter((k) => keyIsExpired(k)).length
+            const locked = currentKeys.filter((k) => k.hwid && String(k.hwid).trim() !== '').length
+            const unlocked = total - locked
+
+            document.getElementById('stat-total').textContent = total
+            document.getElementById('stat-active').textContent = active
+            document.getElementById('stat-disabled').textContent = disabled
+            document.getElementById('stat-expired').textContent = expired
+            document.getElementById('stat-locked').textContent = locked
+            document.getElementById('stat-unlocked').textContent = unlocked
+        }
+
+        function getFilteredKeys() {
+            let out = currentKeys
+
+            if (currentBatch) out = out.filter((k) => (k.metadata?.batch || '') === currentBatch)
+
+            if (currentFilter === 'active') out = out.filter((k) => k.is_active)
+            else if (currentFilter === 'disabled') out = out.filter((k) => !k.is_active)
+            else if (currentFilter === 'expired') out = out.filter((k) => keyIsExpired(k))
+            else if (currentFilter === 'locked') out = out.filter((k) => k.hwid && String(k.hwid).trim() !== '')
+            else if (currentFilter === 'unlocked') out = out.filter((k) => !k.hwid || String(k.hwid).trim() === '')
+
+            if (currentSearch) {
+                const q = currentSearch
+                out = out.filter((k) => {
+                    const haystack = [
+                        k.license_key,
+                        k.hwid,
+                        k.metadata?.license_note,
+                        k.metadata?.subscription_level,
+                        k.metadata?.batch
+                    ].filter(Boolean).join(' ').toLowerCase()
+                    return haystack.includes(q)
+                })
+            }
+
+            return out
+        }
+
+        /* ---------- render: licenses table ---------- */
+
+        function renderExpireCell(key) {
+            const expires = key.expires_at
+            if (!expires) {
+                return `<span class="badge neutral">Never</span>`
+            }
+
+            const isLocked = key.hwid && String(key.hwid).trim() !== ''
+
+            if (!isLocked) {
+                const durationMs = new Date(expires) - new Date(key.created_at || expires)
+                return `
+                    <div class="expire-cell">
+                        <span class="badge neutral" title="The clock starts when this key is activated (HWID set)">⏸ Not started</span>
+                        <div class="expire-caption">${formatDurationFromMs(durationMs)} total</div>
+                    </div>
+                `
+            }
+
+            const diff = new Date(expires) - Date.now()
+            const cls = diff <= 0 ? 'danger' : (diff < 7 * 86400000 ? 'warning' : 'neutral')
+            return `
+                <div class="expire-cell">
+                    <span class="badge ${cls}" data-countdown="${expires}" title="Expires ${formatShortDate(expires)}">${formatCountdown(expires)}</span>
+                </div>
+            `
+        }
+
+        function renderKeys() {
+            const filtered = getFilteredKeys()
+            const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+            if (currentPage > totalPages) currentPage = totalPages
+
+            const start = (currentPage - 1) * PAGE_SIZE
+            const pageKeys = filtered.slice(start, start + PAGE_SIZE)
+
+            const body = document.getElementById('keys-table-body')
+            document.getElementById('inventory-count').textContent = filtered.length
+                ? `Showing ${start + 1}–${Math.min(start + PAGE_SIZE, filtered.length)} of ${filtered.length}`
+                : '0 shown'
+            document.getElementById('page-info').textContent = `Page ${currentPage} of ${totalPages}`
+            document.getElementById('prev-page').disabled = currentPage <= 1
+            document.getElementById('next-page').disabled = currentPage >= totalPages
+
+            if (!pageKeys.length) {
+                body.innerHTML = `<tr><td colspan="9"><div class="empty-state">No licenses match the current view.</div></td></tr>`
+                updateSelectAllCheckbox(pageKeys)
+                renderSelectionBar()
+                return
+            }
+
+            body.innerHTML = pageKeys.map((key) => {
+                const keyEsc = escapeHtml(key.license_key)
+                const batch = key.metadata?.batch
+                const batchEsc = escapeHtml(batch || '')
+                const level = escapeHtml(key.metadata?.subscription_level || '1')
+                const note = escapeHtml(key.metadata?.license_note || '')
+                const pwd = escapeHtml(key.password || 'None')
+                const isLocked = key.hwid && String(key.hwid).trim() !== ''
+                const sel = selectedKeys.has(key.license_key)
+
+                return `
+                    <tr class="${sel ? 'row-selected' : ''}">
+                        <td>
+                            <input type="checkbox" class="row-check" data-key="${keyEsc}" ${sel ? 'checked' : ''} title="Select key">
+                        </td>
+                        <td>
+                            <div class="key-cell">
+                                <div class="key-text" data-act="copy" data-key="${keyEsc}" title="Click to copy">${keyEsc}</div>
+                                <div class="key-note" title="${pwd}">Password: ${pwd}</div>
+                                ${note ? `<div class="key-note">${note}</div>` : ''}
+                            </div>
+                        </td>
+                        <td class="cell-sub">${formatShortDate(key.created_at)}</td>
+                        <td>
+                            <span class="cell-level" data-act="level" data-key="${keyEsc}" data-level="${escapeHtml(key.metadata?.subscription_level || '1')}" title="Click to edit">Lv ${level}</span>
+                        </td>
+                        <td>${renderExpireCell(key)}</td>
+                        <td>
+                            ${isLocked
+                                ? `<span class="hwid-chip" title="${escapeHtml(key.hwid)}">${escapeHtml(truncateHwid(key.hwid))}</span>`
+                                : '<span class="cell-muted">—</span>'}
+                        </td>
+                        <td>
+                            ${batch
+                                ? `<span class="badge neutral batch-chip" data-act="batch-filter" data-key="${keyEsc}" data-batch="${batchEsc}" title="Filter by this batch">${batchEsc}</span>`
+                                : '<span class="cell-muted">—</span>'}
+                        </td>
+                        <td>
+                            <button class="status-toggle ${key.is_active ? 'on' : 'off'}" data-act="toggle" data-key="${keyEsc}">
+                                ${key.is_active ? 'Active' : 'Disabled'}
+                            </button>
+                        </td>
+                        <td>
+                            <div class="row-actions">
+                                <button class="row-btn" data-act="copy" data-key="${keyEsc}" title="Copy key">Copy</button>
+                                <button class="row-btn" data-act="extend30" data-key="${keyEsc}" title="Add 30 days">+30d</button>
+                                <button class="row-btn danger" data-act="delete" data-key="${keyEsc}">Del</button>
+                            </div>
+                        </td>
+                    </tr>
+                `
+            }).join('')
+
+            updateSelectAllCheckbox(pageKeys)
+            renderSelectionBar()
+        }
+
+        function updateSelectAllCheckbox(pageKeys) {
+            const cb = document.getElementById('select-all')
+            const selCount = pageKeys.filter((k) => selectedKeys.has(k.license_key)).length
+            cb.checked = pageKeys.length > 0 && selCount === pageKeys.length
+            cb.indeterminate = selCount > 0 && selCount < pageKeys.length
+        }
+
+        function renderSelectionBar() {
+            const bar = document.getElementById('selection-bar')
+            const count = selectedKeys.size
+            if (!count) {
+                bar.classList.add('hidden')
+                return
+            }
+            bar.classList.remove('hidden')
+            document.getElementById('sel-count').textContent = `${count} selected`
+        }
+
+        function getSelectedKeyObjs() {
+            return currentKeys.filter((k) => selectedKeys.has(k.license_key))
+        }
+
+        function getSelectedList() {
+            return getSelectedKeyObjs().map((k) => k.license_key)
+        }
+
+        /* ---------- render: batches ---------- */
+
+        function renderBatches() {
+            const body = document.getElementById('batches-body')
+            const batches = getBatches()
+            document.getElementById('batch-count').textContent = `${batches.length} batch${batches.length === 1 ? '' : 'es'}`
+
+            if (!batches.length) {
+                body.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;">No batches yet. Create keys with a shared batch name and they'll be grouped here for one-click management.</div>`
+                return
+            }
+
+            body.innerHTML = batches.map((b) => {
+                const nameEsc = escapeHtml(b.name)
+                return `
+                    <article class="batch-card">
+                        <div class="batch-head">
+                            <div>
+                                <h3 class="batch-name">${nameEsc}</h3>
+                                <div class="batch-meta">
+                                    ${b.count} keys · ${b.active} active · ${b.expired} expired
+                                </div>
+                            </div>
+                            <div class="batch-stat">
+                                Created<br><b>${formatShortDate(b.created ? new Date(b.created).toISOString() : null)}</b>
+                            </div>
+                        </div>
+                        <div class="batch-actions">
+                            <button class="btn sm ghost" data-bact="view" data-batch="${nameEsc}">View Keys</button>
+                            <button class="btn sm ghost" data-bact="copy" data-batch="${nameEsc}">Copy All</button>
+                            <button class="btn sm ghost" data-bact="export-txt" data-batch="${nameEsc}">Export TXT</button>
+                            <button class="btn sm ghost" data-bact="export-csv" data-batch="${nameEsc}">CSV</button>
+                            <button class="btn sm ghost" data-bact="activate" data-batch="${nameEsc}">Activate All</button>
+                            <button class="btn sm ghost" data-bact="disable" data-batch="${nameEsc}">Disable All</button>
+                            <button class="btn sm ghost" data-bact="extend" data-batch="${nameEsc}">Extend All</button>
+                            <button class="btn sm ghost" data-bact="rename" data-batch="${nameEsc}">Rename</button>
+                            <button class="btn sm danger-ghost" data-bact="delete" data-batch="${nameEsc}">Delete All</button>
+                        </div>
+                    </article>
+                `
+            }).join('')
+        }
+
+        /* ---------- navigation ---------- */
+
+        function switchView(view) {
+            activeView = view
+            document.querySelectorAll('.nav-item').forEach((n) => n.classList.toggle('active', n.dataset.view === view))
+            document.getElementById('licenses-view').classList.toggle('hidden', view !== 'licenses')
+            document.getElementById('batches-view').classList.toggle('hidden', view !== 'batches')
+        }
+
+        function filterByBatch(name) {
+            currentBatch = name || ''
+            currentPage = 1
+            if (activeView !== 'licenses') switchView('licenses')
+            document.getElementById('batch-filter').value = name || ''
+            renderKeys()
+        }
+
+        /* ---------- create keys ---------- */
+
+        function updateLicenseMode() {
+            const licenseMode = document.querySelector('input[name="license-mode"]:checked')?.value || 'generated'
+            document.getElementById('generated-fields').classList.toggle('hidden', licenseMode !== 'generated')
+            document.getElementById('custom-field').classList.toggle('hidden', licenseMode !== 'custom')
+            document.getElementById('amount-field').classList.toggle('hidden', licenseMode !== 'generated')
         }
 
         async function generateAndSaveKeys() {
@@ -958,8 +1839,7 @@
             const expiryDuration = document.getElementById('expiry-duration').value
             const licenseMode = document.querySelector('input[name="license-mode"]:checked')?.value || 'generated'
             const customLicenseKey = document.getElementById('custom-license-key').value.trim()
-            const passwordVal = document.getElementById('license-password').value.trim()
-            const initialPoints = parseFloat(document.getElementById('initial-points').value) || 100.000
+            const batchName = document.getElementById('license-batch').value.trim()
             const pool = getCharacterPool()
 
             if (licenseMode === 'generated' && !pool) {
@@ -978,18 +1858,18 @@
             }
 
             const expiresAt = parseExpirationDuration(expiryDuration, expiryUnit)
+            const durationDays = durationToDays(expiryDuration, expiryUnit)
             const useLowercase = document.getElementById('use-lowercase').checked
             const useUppercase = document.getElementById('use-uppercase').checked
-
             const totalKeys = licenseMode === 'custom' ? 1 : Math.max(1, amount)
 
             const newKeys = Array.from({ length: totalKeys }, () => ({
                 license_key: licenseMode === 'custom' ? customLicenseKey : generateLicenseKeyFromMask(mask, pool),
-                password: passwordVal || null,
+                password: generatePassword(),
                 expires_at: expiresAt,
+                duration_days: durationDays,
                 is_active: true,
                 hwid: null,
-                points: initialPoints,
                 metadata: {
                     generated_by: 'benjAuth Dashboard',
                     hwid_mode: 'auto-lock-on-first-use',
@@ -997,6 +1877,7 @@
                     subscription_level: subscriptionLevel,
                     mask_used: licenseMode === 'generated' ? mask : null,
                     creation_mode: licenseMode,
+                    batch: batchName || null,
                     alphabet: {
                         lowercase: useLowercase,
                         uppercase: useUppercase
@@ -1005,152 +1886,39 @@
             }))
 
             try {
-                const { data, error } = await adminClient.from('license_keys').insert(newKeys).select()
-                if (error) throw error
+                for (let i = 0; i < newKeys.length; i += 100) {
+                    const { error } = await adminClient.from('license_keys').insert(newKeys.slice(i, i + 100))
+                    if (error) throw error
+                }
 
-                // Reset fields
-                document.getElementById('license-password').value = ''
+                document.getElementById('license-password').value = generatePassword()
                 document.getElementById('license-note').value = ''
-                closeCreateModal()
+                document.getElementById('license-batch').value = ''
+                closeAllModals()
 
                 await loadKeys()
-                showToast(`${(data || []).length} benjAuth license${(data || []).length === 1 ? '' : 's'} created.`, 'success')
+
+                if (batchName) {
+                    showToast(`${newKeys.length} licenses created in batch "${batchName}".`, 'success')
+                } else {
+                    showToast(`${newKeys.length} benjAuth license${newKeys.length === 1 ? '' : 's'} created.`, 'success')
+                }
             } catch (err) {
                 console.error(err)
                 showToast('Failed to create licenses: ' + err.message, 'error')
             }
         }
 
-        async function loadKeys() {
-            if (!readClient) return
-
-            try {
-                const { data, error } = await readClient
-                    .from('license_keys')
-                    .select('*')
-                    .order('created_at', { ascending: false })
-
-                if (error) throw error
-
-                currentKeys = data || []
-                renderStats()
-                renderKeys()
-            } catch (err) {
-                console.error(err)
-                showToast('Failed to load licenses: ' + err.message, 'error')
-            }
-        }
-
-        function renderStats() {
-            const total = currentKeys.length
-            const active = currentKeys.filter((key) => key.is_active).length
-            const locked = currentKeys.filter((key) => key.hwid && key.hwid.trim() !== '').length
-            const unlocked = total - locked
-
-            document.getElementById('stat-total').textContent = total
-            document.getElementById('stat-active').textContent = active
-            document.getElementById('stat-locked').textContent = locked
-            document.getElementById('stat-unlocked').textContent = unlocked
-        }
-
-        function getFilteredKeys() {
-            if (!currentSearch) return currentKeys
-
-            return currentKeys.filter((key) => {
-                const haystack = [
-                    key.license_key,
-                    key.hwid,
-                    key.metadata?.license_note,
-                    key.metadata?.subscription_level
-                ].filter(Boolean).join(' ').toLowerCase()
-
-                return haystack.includes(currentSearch)
-            })
-        }
-
-        function renderKeys() {
-            const list = document.getElementById('keys-table-body')
-            const filteredKeys = getFilteredKeys()
-            document.getElementById('inventory-count').textContent = `${filteredKeys.length} shown`
-
-            if (!filteredKeys.length) {
-                list.innerHTML = `<div class="empty-state">No licenses match the current view yet.</div>`
-                return
-            }
-
-            list.innerHTML = filteredKeys.map((key) => {
-                const isLocked = key.hwid && key.hwid.trim() !== ''
-                const expired = isExpired(key.expires_at)
-                const subscriptionLevel = escapeHtml(key.metadata?.subscription_level || '1')
-                const note = escapeHtml(key.metadata?.license_note || '')
-                const pwd = escapeHtml(key.password || 'None')
-                const pts = parseFloat(key.points || 0).toFixed(3)
-                const hwidMarkup = isLocked
-                    ? `<div class="mini-copy">${escapeHtml(key.hwid)}</div>`
-                    : `<div class="mini-copy muted">Auto-locks on first use</div>`
-
-                return `
-                    <article class="license-row">
-                        <div>
-                            <div class="mini-label">License Key</div>
-                            <div class="license-key">${escapeHtml(key.license_key)}</div>
-                            <div class="license-note" style="margin-top: 4px; color: #a4adb9;">
-                                <strong>Password:</strong> ${pwd}
-                            </div>
-                            ${note ? `<div class="license-note" style="margin-top: 4px; font-style: italic;">Note: ${note}</div>` : ''}
-                        </div>
-                        <div>
-                            <div class="mini-label">Created / Plan</div>
-                            <div class="mini-copy">${formatShortDate(key.created_at)}</div>
-                            <div class="license-note" style="margin-top: 4px;">Level Plan ${subscriptionLevel}</div>
-                        </div>
-                        <div>
-                            <div class="mini-label">Expiration</div>
-                            <div class="mini-copy">${expired ? `<span class="badge danger">${formatShortDate(key.expires_at)}</span>` : `<span class="badge ${key.expires_at ? 'warning' : 'neutral'}">${formatShortDate(key.expires_at)}</span>`}</div>
-                        </div>
-                        <div>
-                            <div class="mini-label">HWID / Points</div>
-                            ${hwidMarkup}
-                            <div class="license-note" style="margin-top: 4px; font-weight: 700; color: #a78bfa;">${pts} PTS</div>
-                        </div>
-                        <div>
-                            <div class="mini-label">Status</div>
-                            <div class="mini-copy">
-                                <button onclick="toggleActive('${escapeHtml(key.license_key)}')" class="badge ${key.is_active ? 'success' : 'danger'}">
-                                    ${key.is_active ? 'Active' : 'Disabled'}
-                                </button>
-                            </div>
-                        </div>
-                        <div class="row-actions">
-                            <button onclick="setPointsPrompt('${escapeHtml(key.license_key)}', ${key.points || 0})" class="inline-btn" style="color: #a78bfa; border-color: rgba(167, 139, 250, 0.2);">Set PTS</button>
-                            <button onclick="copyToClipboard('${escapeHtml(key.license_key)}')" class="inline-btn">Copy</button>
-                            <button onclick="deleteKey('${escapeHtml(key.license_key)}')" class="inline-btn danger">Delete</button>
-                        </div>
-                    </article>
-                `
-            }).join('')
-        }
+        /* ---------- single-key actions ---------- */
 
         async function toggleActive(licenseKey) {
             if (!ensureAdminClient()) return
-
+            const key = currentKeys.find((k) => k.license_key === licenseKey)
+            const target = key ? !key.is_active : false
             try {
-                const { data, error: fetchError } = await readClient
-                    .from('license_keys')
-                    .select('is_active')
-                    .eq('license_key', licenseKey)
-                    .single()
-
-                if (fetchError) throw fetchError
-
-                const { error } = await adminClient
-                    .from('license_keys')
-                    .update({ is_active: !data.is_active })
-                    .eq('license_key', licenseKey)
-
+                const { error } = await adminClient.from('license_keys').update({ is_active: target }).eq('license_key', licenseKey)
                 if (error) throw error
-
-                showToast(`License ${!data.is_active ? 'activated' : 'disabled'}.`, 'success')
+                showToast(`License ${target ? 'activated' : 'disabled'}.`, 'success')
                 await loadKeys()
             } catch (err) {
                 console.error(err)
@@ -1158,47 +1926,26 @@
             }
         }
 
-        async function setPointsPrompt(licenseKey, currentPoints) {
+        function deleteKey(licenseKey) {
             if (!ensureAdminClient()) return
-
-            const newPointsStr = prompt(`Set new points balance for key ${licenseKey}:`, currentPoints)
-            if (newPointsStr === null) return // Canceled
-
-            const newPoints = parseFloat(newPointsStr)
-            if (isNaN(newPoints) || newPoints < 0) {
-                showToast('Please enter a valid positive number.', 'error')
-                return
-            }
-
-            try {
-                const { error } = await adminClient
-                    .from('license_keys')
-                    .update({ points: newPoints })
-                    .eq('license_key', licenseKey)
-
-                if (error) throw error
-
-                showToast(`Points updated to ${newPoints.toFixed(3)} PTS.`, 'success')
-                await loadKeys()
-            } catch (err) {
-                console.error(err)
-                showToast('Failed to update points: ' + err.message, 'error')
-            }
-        }
-
-        async function deleteKey(licenseKey) {
-            if (!ensureAdminClient()) return
-            if (!confirm(`Delete this benjAuth license permanently?\n\n${licenseKey}`)) return
-
-            try {
-                const { error } = await adminClient.from('license_keys').delete().eq('license_key', licenseKey)
-                if (error) throw error
-                showToast('License deleted successfully.', 'success')
-                await loadKeys()
-            } catch (err) {
-                console.error(err)
-                showToast('Failed to delete license.', 'error')
-            }
+            openConfirm({
+                title: 'Delete this license?',
+                message: `${licenseKey}\n\nThis permanently removes the key. This cannot be undone.`,
+                confirmLabel: 'Delete',
+                danger: true,
+                onConfirm: async () => {
+                    try {
+                        const { error } = await adminClient.from('license_keys').delete().eq('license_key', licenseKey)
+                        if (error) throw error
+                        selectedKeys.delete(licenseKey)
+                        showToast('License deleted.', 'success')
+                        await loadKeys()
+                    } catch (err) {
+                        console.error(err)
+                        showToast('Failed to delete license.', 'error')
+                    }
+                }
+            })
         }
 
         async function copyToClipboard(text) {
@@ -1207,114 +1954,593 @@
                 showToast('Copied to clipboard.', 'success')
             } catch (err) {
                 console.error(err)
-                showToast('Failed to copy license key.', 'error')
+                showToast('Failed to copy.', 'error')
             }
         }
 
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-stack')
-            const toast = document.createElement('div')
-            toast.className = `toast ${type}`
-            toast.textContent = message
-            container.appendChild(toast)
-
-            setTimeout(() => {
-                toast.remove()
-            }, 2800)
+        function copyKey(licenseKey) {
+            copyToClipboard(licenseKey)
         }
 
-        function updateLicenseMode() {
-            const licenseMode = document.querySelector('input[name="license-mode"]:checked')?.value || 'generated'
-            const generatedFields = document.getElementById('generated-fields')
-            const customField = document.getElementById('custom-field')
-            const amountField = document.getElementById('amount-field')
+        function extendOne(licenseKey, days) {
+            const obj = currentKeys.find((k) => k.license_key === licenseKey)
+            if (!obj) return
+            if (!ensureAdminClient()) return
+            runExtend([obj], days, 'days')
+        }
 
-            if (licenseMode === 'custom') {
-                generatedFields.classList.add('hidden')
-                customField.classList.remove('hidden')
-                amountField.classList.add('hidden')
+        function startLevelEdit(licenseKey, el) {
+            const obj = currentKeys.find((k) => k.license_key === licenseKey)
+            if (!obj) return
+            const input = document.createElement('input')
+            input.type = 'text'
+            input.value = obj.metadata?.subscription_level || ''
+            input.className = 'cell-input'
+            el.replaceWith(input)
+            input.focus()
+            input.select()
+
+            let done = false
+            const commit = async () => {
+                if (done) return
+                done = true
+                const val = input.value.trim()
+                if (!ensureAdminClient()) {
+                    loadKeys()
+                    return
+                }
+                try {
+                    const meta = { ...(obj.metadata || {}), subscription_level: val }
+                    const { error } = await adminClient.from('license_keys').update({ metadata: meta }).eq('license_key', licenseKey)
+                    if (error) throw error
+                    showToast('Subscription level updated.', 'success')
+                } catch (err) {
+                    showToast('Update failed: ' + err.message, 'error')
+                }
+                loadKeys()
+            }
+
+            input.addEventListener('blur', commit)
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') input.blur()
+                else if (e.key === 'Escape') {
+                    done = true
+                    loadKeys()
+                }
+            })
+        }
+
+        /* ---------- bulk actions ---------- */
+
+        function clearSelection() {
+            selectedKeys.clear()
+            renderKeys()
+        }
+
+        function toggleSelectAllPage() {
+            const filtered = getFilteredKeys()
+            const start = (currentPage - 1) * PAGE_SIZE
+            const pageKeys = filtered.slice(start, start + PAGE_SIZE)
+            const allSelected = pageKeys.length > 0 && pageKeys.every((k) => selectedKeys.has(k.license_key))
+            pageKeys.forEach((k) => (allSelected ? selectedKeys.delete(k.license_key) : selectedKeys.add(k.license_key)))
+            renderKeys()
+        }
+
+        function selectAllFiltered() {
+            getFilteredKeys().forEach((k) => selectedKeys.add(k.license_key))
+            renderKeys()
+        }
+
+        async function bulkSetActive(active) {
+            const list = getSelectedList()
+            if (!list.length) return
+            if (!ensureAdminClient()) return
+            try {
+                const { error } = await adminClient.from('license_keys').update({ is_active: active }).in('license_key', list)
+                if (error) throw error
+                showToast(`${list.length} licenses ${active ? 'activated' : 'disabled'}.`, 'success')
+                await loadKeys()
+            } catch (err) {
+                console.error(err)
+                showToast('Bulk update failed: ' + err.message, 'error')
+            }
+        }
+
+        function bulkDelete() {
+            const objs = getSelectedKeyObjs()
+            if (!objs.length) return
+            if (!ensureAdminClient()) return
+            openConfirm({
+                title: `Delete ${objs.length} licenses?`,
+                message: 'This permanently removes every selected key. This cannot be undone.',
+                confirmLabel: 'Delete All',
+                danger: true,
+                onConfirm: async () => {
+                    try {
+                        const { error } = await adminClient.from('license_keys').delete().in('license_key', objs.map((o) => o.license_key))
+                        if (error) throw error
+                        objs.forEach((o) => selectedKeys.delete(o.license_key))
+                        showToast(`${objs.length} licenses deleted.`, 'success')
+                        await loadKeys()
+                    } catch (err) {
+                        console.error(err)
+                        showToast('Delete failed: ' + err.message, 'error')
+                    }
+                }
+            })
+        }
+
+        function bulkExtend() {
+            const objs = getSelectedKeyObjs()
+            if (!objs.length) return
+            if (!ensureAdminClient()) return
+            openExtend({
+                title: `Extend ${objs.length} licenses`,
+                onConfirm: (d, u) => runExtend(objs, d, u)
+            })
+        }
+
+        function bulkLevel() {
+            const objs = getSelectedKeyObjs()
+            if (!objs.length) return
+            if (!ensureAdminClient()) return
+            openInput({
+                title: `Set level on ${objs.length} licenses`,
+                label: 'Subscription level',
+                value: '1',
+                placeholder: 'e.g. 1, 2, premium',
+                confirmLabel: 'Set Level',
+                onConfirm: async (value) => {
+                    const level = value.trim()
+                    if (!level) {
+                        showToast('Enter a level.', 'error')
+                        return
+                    }
+                    try {
+                        for (let i = 0; i < objs.length; i += 25) {
+                            const chunk = objs.slice(i, i + 25)
+                            await Promise.all(chunk.map((obj) => {
+                                const meta = { ...(obj.metadata || {}), subscription_level: level }
+                                return adminClient.from('license_keys').update({ metadata: meta }).eq('license_key', obj.license_key)
+                            }))
+                        }
+                        showToast(`${objs.length} licenses set to level ${level}.`, 'success')
+                        await loadKeys()
+                    } catch (err) {
+                        console.error(err)
+                        showToast('Bulk update failed: ' + err.message, 'error')
+                    }
+                }
+            })
+        }
+
+        async function runExtend(objs, duration, unit) {
+            const amount = Number(duration)
+            if (!Number.isFinite(amount) || amount <= 0) {
+                showToast('Enter a valid duration.', 'error')
                 return
             }
+            try {
+                for (let i = 0; i < objs.length; i += 25) {
+                    const chunk = objs.slice(i, i + 25)
+                    await Promise.all(chunk.map((obj) => {
+                        const next = computeExtendedAt(obj.expires_at, amount, unit)
+                        const days = durationToDays(amount, unit)
+                        const newDuration = (obj.duration_days ?? durationToDays(30, 'days')) + days
+                        return adminClient.from('license_keys').update({ expires_at: next, duration_days: newDuration }).eq('license_key', obj.license_key)
+                    }))
+                }
+                showToast(`${objs.length} licenses extended by ${amount} ${unit}.`, 'success')
+                await loadKeys()
+            } catch (err) {
+                console.error(err)
+                showToast('Extend failed: ' + err.message, 'error')
+            }
+        }
 
-            generatedFields.classList.remove('hidden')
-            customField.classList.add('hidden')
-            amountField.classList.remove('hidden')
+        async function copySelected() {
+            const list = getSelectedList()
+            if (!list.length) return
+            await copyToClipboard(list.join('\n'))
+        }
+
+        function exportSelected(format) {
+            exportKeys(getSelectedKeyObjs(), format)
+        }
+
+        function exportKeys(objs, format) {
+            if (!objs.length) {
+                showToast('Nothing to export.', 'error')
+                return
+            }
+            const stamp = new Date().toISOString().slice(0, 10)
+            if (format === 'txt') {
+                downloadFile(`benjauth-keys-${stamp}.txt`, objs.map((o) => o.license_key).join('\n'), 'text/plain')
+            } else {
+                const head = ['license_key', 'password', 'expires_at', 'is_active', 'hwid', 'subscription_level', 'batch', 'note']
+                const rows = objs.map((o) => [
+                    o.license_key, o.password || '', o.expires_at || '', o.is_active ? 'active' : 'disabled',
+                    o.hwid || '', o.metadata?.subscription_level || '', o.metadata?.batch || '', o.metadata?.license_note || ''
+                ].map(csvCell).join(','))
+                downloadFile(`benjauth-keys-${stamp}.csv`, [head.join(','), ...rows].join('\n'), 'text/csv')
+            }
+            showToast(`Exported ${objs.length} keys.`, 'success')
+        }
+
+        /* ---------- batch actions ---------- */
+
+        function viewBatch(name) {
+            filterByBatch(name)
+        }
+
+        async function copyBatch(name) {
+            const objs = batchKeys(name)
+            if (!objs.length) return
+            await copyToClipboard(objs.map((o) => o.license_key).join('\n'))
+        }
+
+        function exportBatch(name, format) {
+            exportKeys(batchKeys(name), format)
+        }
+
+        function batchSetActive(name, active) {
+            const objs = batchKeys(name)
+            if (!objs.length) {
+                showToast('No keys in this batch.', 'error')
+                return
+            }
+            if (!ensureAdminClient()) return
+            adminClient.from('license_keys')
+                .update({ is_active: active })
+                .in('license_key', objs.map((o) => o.license_key))
+                .then(({ error }) => {
+                    if (error) throw error
+                    showToast(`${objs.length} licenses in "${name}" ${active ? 'activated' : 'disabled'}.`, 'success')
+                    loadKeys()
+                })
+                .catch((err) => {
+                    console.error(err)
+                    showToast('Batch update failed: ' + err.message, 'error')
+                })
+        }
+
+        function batchExtend(name) {
+            const objs = batchKeys(name)
+            if (!objs.length) {
+                showToast('No keys in this batch.', 'error')
+                return
+            }
+            if (!ensureAdminClient()) return
+            openExtend({
+                title: `Extend batch "${name}" (${objs.length} keys)`,
+                onConfirm: (d, u) => runExtend(objs, d, u)
+            })
+        }
+
+        function batchRename(name) {
+            const objs = batchKeys(name)
+            if (!objs.length) return
+            if (!ensureAdminClient()) return
+            openInput({
+                title: `Rename batch "${name}"`,
+                label: 'New batch name',
+                value: name,
+                confirmLabel: 'Rename',
+                onConfirm: (v) => runBatchRename(name, v)
+            })
+        }
+
+        async function runBatchRename(oldName, newName) {
+            const val = (newName || '').trim()
+            if (!val) {
+                showToast('Batch name cannot be empty.', 'error')
+                return
+            }
+            const objs = batchKeys(oldName)
+            if (!objs.length) return
+            try {
+                for (let i = 0; i < objs.length; i += 25) {
+                    const chunk = objs.slice(i, i + 25)
+                    await Promise.all(chunk.map((obj) => {
+                        const meta = { ...(obj.metadata || {}), batch: val }
+                        return adminClient.from('license_keys').update({ metadata: meta }).eq('license_key', obj.license_key)
+                    }))
+                }
+                if (currentBatch === oldName) currentBatch = val
+                showToast(`Batch renamed to "${val}".`, 'success')
+                await loadKeys()
+            } catch (err) {
+                console.error(err)
+                showToast('Rename failed: ' + err.message, 'error')
+            }
+        }
+
+        function batchDelete(name) {
+            const objs = batchKeys(name)
+            if (!objs.length) return
+            if (!ensureAdminClient()) return
+            openConfirm({
+                title: `Delete batch "${name}"?`,
+                message: `This permanently deletes all ${objs.length} keys in this batch. This cannot be undone.`,
+                confirmLabel: 'Delete All',
+                danger: true,
+                onConfirm: async () => {
+                    try {
+                        const { error } = await adminClient.from('license_keys').delete().in('license_key', objs.map((o) => o.license_key))
+                        if (error) throw error
+                        objs.forEach((o) => selectedKeys.delete(o.license_key))
+                        if (currentBatch === name) currentBatch = ''
+                        showToast(`Batch "${name}" deleted (${objs.length} keys).`, 'success')
+                        await loadKeys()
+                    } catch (err) {
+                        console.error(err)
+                        showToast('Delete failed: ' + err.message, 'error')
+                    }
+                }
+            })
+        }
+
+        /* ---------- event wiring ---------- */
+
+        function bindRowEvents() {
+            const body = document.getElementById('keys-table-body')
+
+            body.addEventListener('click', (e) => {
+                const el = e.target.closest('[data-act]')
+                if (!el) return
+                const act = el.dataset.act
+                const key = el.dataset.key
+
+                if (act === 'copy') copyKey(key)
+                else if (act === 'extend30') extendOne(key, 30)
+                else if (act === 'delete') deleteKey(key)
+                else if (act === 'toggle') toggleActive(key)
+                else if (act === 'level') startLevelEdit(key, el)
+                else if (act === 'batch-filter') filterByBatch(el.dataset.batch)
+            })
+
+            body.addEventListener('change', (e) => {
+                if (e.target.classList.contains('row-check')) {
+                    const key = e.target.dataset.key
+                    if (e.target.checked) selectedKeys.add(key)
+                    else selectedKeys.delete(key)
+                    renderKeys()
+                }
+            })
+        }
+
+        function bindBatchEvents() {
+            const body = document.getElementById('batches-body')
+
+            body.addEventListener('click', (e) => {
+                const el = e.target.closest('[data-bact]')
+                if (!el) return
+                const act = el.dataset.bact
+                const batch = el.dataset.batch
+
+                if (act === 'view') viewBatch(batch)
+                else if (act === 'copy') copyBatch(batch)
+                else if (act === 'export-txt') exportBatch(batch, 'txt')
+                else if (act === 'export-csv') exportBatch(batch, 'csv')
+                else if (act === 'activate') batchSetActive(batch, true)
+                else if (act === 'disable') batchSetActive(batch, false)
+                else if (act === 'extend') batchExtend(batch)
+                else if (act === 'rename') batchRename(batch)
+                else if (act === 'delete') batchDelete(batch)
+            })
         }
 
         function initApp() {
+            // Access / connection
             document.getElementById('connect-btn').addEventListener('click', connectSupabase)
+            document.getElementById('supabase-key').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') connectSupabase()
+            })
             document.getElementById('verify-admin-btn').addEventListener('click', verifyAdminKey)
-            document.getElementById('refresh-btn').addEventListener('click', loadKeys)
-            document.getElementById('open-create-modal').addEventListener('click', openCreateModal)
-            document.getElementById('generate-btn').addEventListener('click', generateAndSaveKeys)
-            document.getElementById('close-modal-btn').addEventListener('click', closeCreateModal)
-            document.getElementById('cancel-modal-btn').addEventListener('click', closeCreateModal)
-            document.getElementById('license-mask').value = DEFAULT_MASK
             document.getElementById('service-role-key').addEventListener('input', () => updateAdminStatus(false))
+
+            // Topbar
+            document.getElementById('search-input').addEventListener('input', (event) => {
+                currentSearch = event.target.value.trim().toLowerCase()
+                currentPage = 1
+                renderKeys()
+            })
+
+            // Navigation
+            document.querySelectorAll('.nav-item').forEach((n) => {
+                n.addEventListener('click', () => switchView(n.dataset.view))
+            })
+
+            // Page actions
+            document.getElementById('open-create-modal').addEventListener('click', () => openCreateModal(false))
+            document.getElementById('new-batch-btn').addEventListener('click', () => openCreateModal(true))
+            document.getElementById('batches-new-btn').addEventListener('click', () => openCreateModal(true))
+            document.getElementById('refresh-btn').addEventListener('click', loadKeys)
+
+            // Create modal
+            document.getElementById('gen-password-btn').addEventListener('click', () => {
+                document.getElementById('license-password').value = generatePassword()
+            })
+            document.getElementById('close-modal-btn').addEventListener('click', closeAllModals)
+            document.getElementById('cancel-modal-btn').addEventListener('click', closeAllModals)
+            document.getElementById('generate-btn').addEventListener('click', generateAndSaveKeys)
+            document.getElementById('license-mask').value = DEFAULT_MASK
             document.querySelectorAll('input[name="license-mode"]').forEach((node) => {
                 node.addEventListener('change', updateLicenseMode)
             })
-            document.getElementById('search-input').addEventListener('input', (event) => {
-                currentSearch = event.target.value.trim().toLowerCase()
+
+            // Filter chips
+            document.querySelectorAll('[data-filter]').forEach((chip) => {
+                chip.addEventListener('click', () => {
+                    currentFilter = chip.dataset.filter
+                    currentPage = 1
+                    document.querySelectorAll('[data-filter]').forEach((c) => c.classList.toggle('active', c === chip))
+                    renderKeys()
+                })
+            })
+
+            // Batch filter select
+            document.getElementById('batch-filter').addEventListener('change', (e) => {
+                currentBatch = e.target.value
+                currentPage = 1
                 renderKeys()
             })
+
+            // Selection
+            document.getElementById('select-all').addEventListener('change', toggleSelectAllPage)
+            document.getElementById('select-all-filtered').addEventListener('click', selectAllFiltered)
+            document.getElementById('clear-selection').addEventListener('click', clearSelection)
+            document.getElementById('bulk-activate').addEventListener('click', () => bulkSetActive(true))
+            document.getElementById('bulk-disable').addEventListener('click', () => bulkSetActive(false))
+            document.getElementById('bulk-extend').addEventListener('click', bulkExtend)
+            document.getElementById('bulk-level').addEventListener('click', bulkLevel)
+            document.getElementById('bulk-copy').addEventListener('click', copySelected)
+            document.getElementById('bulk-export-txt').addEventListener('click', () => exportSelected('txt'))
+            document.getElementById('bulk-export-csv').addEventListener('click', () => exportSelected('csv'))
+            document.getElementById('bulk-delete').addEventListener('click', bulkDelete)
+
+            // Pagination
+            document.getElementById('prev-page').addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--
+                    renderKeys()
+                }
+            })
+            document.getElementById('next-page').addEventListener('click', () => {
+                const totalPages = Math.max(1, Math.ceil(getFilteredKeys().length / PAGE_SIZE))
+                if (currentPage < totalPages) {
+                    currentPage++
+                    renderKeys()
+                }
+            })
+
+            // Confirm modal
+            document.getElementById('confirm-cancel').addEventListener('click', closeAllModals)
+            document.getElementById('confirm-ok').addEventListener('click', () => {
+                const fn = pendingConfirm
+                closeAllModals()
+                if (fn) fn()
+            })
+
+            // Input modal
+            document.getElementById('input-cancel').addEventListener('click', closeAllModals)
+            document.getElementById('input-ok').addEventListener('click', () => {
+                const fn = pendingInput
+                const value = document.getElementById('input-value').value
+                closeAllModals()
+                if (fn) fn(value)
+            })
+            document.getElementById('input-value').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') document.getElementById('input-ok').click()
+            })
+
+            // Extend modal
+            document.getElementById('extend-cancel').addEventListener('click', closeAllModals)
+            document.getElementById('extend-ok').addEventListener('click', () => {
+                const fn = pendingExtend
+                const duration = document.getElementById('extend-duration').value
+                const unit = document.getElementById('extend-unit').value
+                closeAllModals()
+                if (fn) fn(duration, unit)
+            })
+            document.getElementById('extend-duration').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') document.getElementById('extend-ok').click()
+            })
+
+            // Escape closes modals
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeAllModals()
+            })
+
+            bindRowEvents()
+            bindBatchEvents()
 
             updateConnectionStatus(false)
             updateAdminStatus(false)
             updateLicenseMode()
+
+            // Live countdown ticker
+            setInterval(tickCountdowns, 1000)
         }
 
         window.onload = initApp
-        window.copyToClipboard = copyToClipboard
-        window.deleteKey = deleteKey
-        window.toggleActive = toggleActive
-        window.setPointsPrompt = setPointsPrompt
     </script>
 </head>
 <body>
     <div id="toast-stack" class="toast-stack"></div>
 
-    <main id="main-app" class="app-shell">
-        <section class="workspace">
-            <div id="access-overlay" class="access-overlay">
-                <section class="access-card">
-                    <div class="brand">
-                        <div class="brand-badge">bA</div>
-                        <div>
-                            <h1 class="brand-name">benjAuth</h1>
-                            <p class="brand-copy">License control center</p>
-                        </div>
-                    </div>
-
-                    <p class="access-copy">Start by your <code>service_role</code> key, then add the anon key used for read access. This is the first gate before the dashboard opens up.</p>
-
-                    <div class="stack-card">
-                        <div class="field">
-                            <label for="service-role-key">Service Role Key</label>
-                            <input id="service-role-key" type="password" placeholder="Paste service_role key first">
-                        </div>
-
-                        <div class="field">
-                            <label for="supabase-key">Anon Key</label>
-                            <input id="supabase-key" type="password" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hZmFmdmp4a2h0YnlhY3Buc3dhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5NTMzMDQsImV4cCI6MjA5MTUyOTMwNH0.t-SU36Q2uNnOOPv6M0VjSJ6AH_jh_nkkTtC8K8v8OKY" placeholder="Paste your anon key">
-                        </div>
-
-                        <div class="field">
-                            <label for="supabase-url">Project URL</label>
-                            <input id="supabase-url" type="text" value="https://mafafvjxkhtbyacpnswa.supabase.co" readonly>
-                        </div>
-
-                        <button id="connect-btn" class="primary-btn" type="button">Open Dashboard</button>
-                    </div>
-                </section>
+    <!-- Access overlay -->
+    <div id="access-overlay" class="access-overlay">
+        <section class="access-card">
+            <div class="brand">
+                <div class="brand-badge">bA</div>
+                <div>
+                    <h1 class="brand-name">benjAuth</h1>
+                    <p class="brand-copy">License control center</p>
+                </div>
             </div>
 
+            <p class="access-copy">Start with your <code>service_role</code> key, then the anon key used for read access. This is the first gate before the dashboard opens up.</p>
+
+            <div class="stack">
+                <div class="field">
+                    <label for="service-role-key">Service Role Key</label>
+                    <input id="service-role-key" type="password" placeholder="Paste service_role key first">
+                </div>
+
+                <div class="field">
+                    <label for="supabase-key">Anon Key</label>
+                    <input id="supabase-key" type="password" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1hZmFmdmp4a2h0YnlhY3Buc3dhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU5NTMzMDQsImV4cCI6MjA5MTUyOTMwNH0.t-SU36Q2uNnOOPv6M0VjSJ6AH_jh_nkkTtC8K8v8OKY" placeholder="Paste your anon key">
+                </div>
+
+                <div class="field">
+                    <label for="supabase-url">Project URL</label>
+                    <input id="supabase-url" type="text" value="https://mafafvjxkhtbyacpnswa.supabase.co" readonly>
+                </div>
+
+                <button id="connect-btn" class="btn primary" type="button">Open Dashboard</button>
+            </div>
+        </section>
+    </div>
+
+    <div class="app">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-badge">bA</div>
+                <div>
+                    <h1 class="brand-name">benjAuth</h1>
+                    <p class="brand-copy">License control center</p>
+                </div>
+            </div>
+
+            <div class="nav-label">Manage</div>
+            <button class="nav-item active" data-view="licenses">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <rect x="4" y="3.5" width="16" height="17" rx="2.5" stroke="currentColor" stroke-width="1.7" />
+                    <path d="M8.5 8.5h7M8.5 12h7M8.5 15.5h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
+                </svg>
+                Licenses
+            </button>
+            <button class="nav-item" data-view="batches">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M12 3 4.5 7v10L12 21l7.5-4V7L12 3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                    <path d="M4.5 7 12 11l7.5-4M12 11v10" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+                </svg>
+                Batches
+            </button>
+
+            <div class="sidebar-foot">
+                Supabase-backed license manager.<br>KeyAuth-style dark theme.
+            </div>
+        </aside>
+
+        <main class="main">
             <header class="topbar">
                 <div class="search-shell">
                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path d="M10.5 18a7.5 7.5 0 1 1 5.303-2.197L21 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
-                    <input id="search-input" type="text" placeholder="Search licenses, HWIDs, notes, or subscription levels">
+                    <input id="search-input" type="text" placeholder="Search keys, HWIDs, notes, levels, batches...">
                 </div>
 
                 <div class="topbar-right">
@@ -1322,175 +2548,328 @@
                         <div id="connection-status"></div>
                         <div id="admin-status"></div>
                     </div>
-                    <button id="verify-admin-btn" class="ghost-btn">Enable Admin</button>
+                    <button id="verify-admin-btn" class="btn ghost">Enable Admin</button>
                 </div>
             </header>
 
-            <div class="dashboard">
-                <section class="hero-card">
+            <!-- Licenses view -->
+            <div id="licenses-view" class="page">
+                <section class="page-head">
                     <div>
-                        <p class="eyebrow">Home / Licenses / Create License</p>
+                        <p class="eyebrow">Home / Licenses</p>
                         <h1>Licenses</h1>
-                        <p>Manage benjAuth keys, review hardware locks, and create new licenses from a KeyAuth-style control surface with a centered admin modal.</p>
+                        <p class="sub">Tick keys with the checkboxes for bulk actions, or group keys into named batches for one-click management. Time only counts down after a key is activated (HWID set).</p>
                     </div>
-                    <div class="hero-actions">
-                        <button id="open-create-modal" class="primary-btn">New License</button>
-                        <button id="refresh-btn" class="secondary-btn">Refresh Data</button>
+                    <div class="page-actions">
+                        <button id="open-create-modal" class="btn primary">New License</button>
+                        <button id="new-batch-btn" class="btn ghost">New Batch</button>
+                        <button id="refresh-btn" class="btn ghost">Refresh</button>
                     </div>
                 </section>
 
                 <section class="stat-grid">
                     <article class="stat-card">
-                        <div class="stat-label">
-                            <span>Total Licenses</span>
-                            <span class="badge neutral">All</span>
-                        </div>
+                        <div class="stat-label"><span>Total Licenses</span><span class="badge neutral">All</span></div>
                         <div id="stat-total" class="stat-value">0</div>
-                        <div class="stat-note">Every benjAuth key currently in Supabase.</div>
+                        <div class="stat-note">Every key currently in Supabase.</div>
                     </article>
                     <article class="stat-card">
-                        <div class="stat-label">
-                            <span>Active</span>
-                            <span class="badge success">Live</span>
-                        </div>
+                        <div class="stat-label"><span>Active</span><span class="badge success">Live</span></div>
                         <div id="stat-active" class="stat-value">0</div>
-                        <div class="stat-note">Licenses that are ready for use right now.</div>
+                        <div class="stat-note">Ready for use right now.</div>
                     </article>
                     <article class="stat-card">
-                        <div class="stat-label">
-                            <span>HWID Locked</span>
-                            <span class="badge warning">Bound</span>
-                        </div>
+                        <div class="stat-label"><span>Disabled</span><span class="badge danger">Off</span></div>
+                        <div id="stat-disabled" class="stat-value">0</div>
+                        <div class="stat-note">Turned off and unusable.</div>
+                    </article>
+                    <article class="stat-card">
+                        <div class="stat-label"><span>Expired</span><span class="badge warning">Past due</span></div>
+                        <div id="stat-expired" class="stat-value">0</div>
+                        <div class="stat-note">Activated keys past their time.</div>
+                    </article>
+                    <article class="stat-card">
+                        <div class="stat-label"><span>HWID Locked</span><span class="badge warning">Bound</span></div>
                         <div id="stat-locked" class="stat-value">0</div>
-                        <div class="stat-note">Keys already attached to a device fingerprint.</div>
+                        <div class="stat-note">Attached to a device fingerprint.</div>
                     </article>
                     <article class="stat-card">
-                        <div class="stat-label">
-                            <span>Unlocked</span>
-                            <span class="badge neutral">Open</span>
-                        </div>
+                        <div class="stat-label"><span>Unlocked</span><span class="badge neutral">Open</span></div>
                         <div id="stat-unlocked" class="stat-value">0</div>
-                        <div class="stat-note">Fresh licenses waiting for their first activation.</div>
+                        <div class="stat-note">Not yet bound — clock hasn't started.</div>
                     </article>
                 </section>
 
-                <section>
-                    <article class="panel-card">
-                        <div class="card-header">
-                            <div>
-                                <h3>License Inventory</h3>
-                                <p id="admin-hint">Paste a service role key to unlock create, toggle, and delete actions.</p>
-                            </div>
-                            <div id="inventory-count" class="inventory-meta">0 shown</div>
+                <section class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h3>License Inventory</h3>
+                            <p class="hint" id="admin-hint">Paste a service role key to unlock create, toggle, and delete actions.</p>
                         </div>
-                        <div id="keys-table-body" class="license-list"></div>
-                    </article>
+                        <div class="panel-tools">
+                            <select id="batch-filter" class="select" title="Filter by batch">
+                                <option value="">All batches</option>
+                            </select>
+                            <div id="inventory-count" class="cell-muted">0 shown</div>
+                        </div>
+                    </div>
+
+                    <div class="chip-row">
+                        <button class="chip active" data-filter="all">All</button>
+                        <button class="chip" data-filter="active">Active</button>
+                        <button class="chip" data-filter="disabled">Disabled</button>
+                        <button class="chip" data-filter="expired">Expired</button>
+                        <button class="chip" data-filter="locked">HWID Locked</button>
+                        <button class="chip" data-filter="unlocked">Unlocked</button>
+                    </div>
+
+                    <div id="selection-bar" class="selection-bar hidden">
+                        <span id="sel-count" class="sel-count"></span>
+                        <button id="select-all-filtered" class="btn sm ghost" title="Select every key matching the current filter">Select all shown</button>
+                        <button id="bulk-activate" class="btn sm ghost">Activate</button>
+                        <button id="bulk-disable" class="btn sm ghost">Disable</button>
+                        <button id="bulk-extend" class="btn sm ghost">Extend</button>
+                        <button id="bulk-level" class="btn sm ghost">Set Level</button>
+                        <button id="bulk-copy" class="btn sm ghost">Copy</button>
+                        <button id="bulk-export-txt" class="btn sm ghost">Export TXT</button>
+                        <button id="bulk-export-csv" class="btn sm ghost">CSV</button>
+                        <button id="bulk-delete" class="btn sm danger-ghost">Delete</button>
+                        <button id="clear-selection" class="btn sm ghost">Clear</button>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table class="lic-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 36px;"><input type="checkbox" id="select-all" title="Select all on this page"></th>
+                                    <th>License Key</th>
+                                    <th>Created</th>
+                                    <th>Plan</th>
+                                    <th>Time Left</th>
+                                    <th>HWID</th>
+                                    <th>Batch</th>
+                                    <th>Status</th>
+                                    <th style="text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="keys-table-body"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="table-foot">
+                        <span id="page-info">Page 1 of 1</span>
+                        <div class="pager">
+                            <button id="prev-page" class="btn sm ghost">← Prev</button>
+                            <button id="next-page" class="btn sm ghost">Next →</button>
+                        </div>
+                    </div>
                 </section>
             </div>
 
-            <div id="modal-backdrop" class="modal-backdrop hidden">
-                <section class="modal-panel" style="background: var(--panel); border: 1px solid var(--border); box-shadow: var(--shadow); border-radius: var(--radius-lg); width: min(520px, calc(100vw - 36px)); max-height: 90vh; display: flex; flex-direction: column;">
-                    <div class="modal-body" style="padding: 24px; overflow-y: auto; flex: 1;">
-                        <div class="card-header" style="margin-bottom: 22px; display: flex; justify-content: space-between; align-items: flex-start;">
-                            <div>
-                                <h2>Create a new license</h2>
-                                <p class="modal-copy" style="margin: 4px 0 0; color: var(--muted); font-size: 0.88rem;">Generate random keys or create a custom one.</p>
-                            </div>
-                            <button id="close-modal-btn" class="ghost-btn" type="button" style="min-height: 36px; padding: 0 12px; border-radius: 10px;">✕</button>
-                        </div>
-
-                        <div class="stack-card" style="display: grid; gap: 18px;">
-                            <div class="field">
-                                <label>Creation Mode</label>
-                                <div class="mode-switch">
-                                    <label class="mode-option" style="cursor: pointer;">
-                                        <input type="radio" name="license-mode" value="generated" checked>
-                                        <span>Generated</span>
-                                    </label>
-                                    <label class="mode-option" style="cursor: pointer;">
-                                        <input type="radio" name="license-mode" value="custom">
-                                        <span>Custom</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Generated Mode Fields -->
-                            <div id="generated-fields" class="stack-card" style="display: grid; gap: 18px;">
-                                <div class="field">
-                                    <label for="license-mask">Key Mask</label>
-                                    <input id="license-mask" type="text" placeholder="******-******-******">
-                                    <small>Use * as random characters. Example: INDICA-****-****</small>
-                                </div>
-
-                                <div class="toggle-grid">
-                                    <label class="toggle-chip" style="cursor: pointer;">
-                                        <input id="use-uppercase" type="checkbox" checked>
-                                        <span>Uppercase Letters</span>
-                                    </label>
-                                    <label class="toggle-chip" style="cursor: pointer;">
-                                        <input id="use-lowercase" type="checkbox">
-                                        <span>Lowercase Letters</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Custom Mode Fields -->
-                            <div id="custom-field" class="field hidden">
-                                <label for="custom-license-key">Custom License Key</label>
-                                <input id="custom-license-key" type="text" placeholder="Enter custom license key">
-                            </div>
-
-                            <div class="row-2">
-                                <div id="amount-field" class="field">
-                                    <label for="license-amount">Amount</label>
-                                    <input id="license-amount" type="number" min="1" max="100" value="1">
-                                </div>
-                                <div class="field">
-                                    <label for="license-password">Password (Optional)</label>
-                                    <input id="license-password" type="password" placeholder="Key password">
-                                </div>
-                            </div>
-
-                            <div class="row-2">
-                                <div class="field">
-                                    <label for="expiry-duration">Duration</label>
-                                    <input id="expiry-duration" type="number" min="1" value="30">
-                                </div>
-                                <div class="field">
-                                    <label for="expiry-unit">Duration Unit</label>
-                                    <select id="expiry-unit">
-                                        <option value="hours">Hours</option>
-                                        <option value="days" selected>Days</option>
-                                        <option value="months">Months</option>
-                                        <option value="years">Years</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="row-2">
-                                <div class="field">
-                                    <label for="subscription-level">Subscription Level</label>
-                                    <input id="subscription-level" type="text" value="1">
-                                </div>
-                                <div class="field">
-                                    <label for="initial-points">Initial Points</label>
-                                    <input id="initial-points" type="number" step="any" min="0" value="100.000">
-                                </div>
-                            </div>
-
-                            <div class="field">
-                                <label for="license-note">License Note (Optional)</label>
-                                <textarea id="license-note" placeholder="Write internal notes..."></textarea>
-                            </div>
-                        </div>
+            <!-- Batches view -->
+            <div id="batches-view" class="page hidden">
+                <section class="page-head">
+                    <div>
+                        <p class="eyebrow">Home / Batches</p>
+                        <h1>Batches</h1>
+                        <p class="sub">Keys created with the same batch name are grouped here so you can manage a whole batch in one click.</p>
                     </div>
-                    <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px; padding: 18px 24px; border-top: 1px solid var(--border); background: rgba(255, 255, 255, 0.01);">
-                        <button id="cancel-modal-btn" class="secondary-btn" type="button" style="min-height: 40px; padding: 0 16px;">Cancel</button>
-                        <button id="generate-btn" class="primary-btn" type="button" style="min-height: 40px; padding: 0 20px;">Create Key</button>
+                    <div class="page-actions">
+                        <button id="batches-new-btn" class="btn primary">New Batch</button>
                     </div>
                 </section>
+
+                <section class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h3>Batch Groups</h3>
+                            <p class="hint">Every action applies to all keys in the batch.</p>
+                        </div>
+                        <div id="batch-count" class="cell-muted">0 batches</div>
+                    </div>
+                    <div id="batches-body" class="batches-grid"></div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create license modal -->
+    <div id="modal-backdrop" class="modal-backdrop hidden">
+        <section class="modal-panel">
+            <div class="modal-body">
+                <div class="modal-head">
+                    <div>
+                        <h2>Create licenses</h2>
+                        <p>Generate random keys or add a custom one. Give them a batch name to group them.</p>
+                    </div>
+                    <button id="close-modal-btn" class="icon-btn" type="button" title="Close">✕</button>
+                </div>
+
+                <div class="stack">
+                    <div class="field">
+                        <label>Creation Mode</label>
+                        <div class="mode-switch">
+                            <label class="mode-option">
+                                <input type="radio" name="license-mode" value="generated" checked>
+                                <span>Generated</span>
+                            </label>
+                            <label class="mode-option">
+                                <input type="radio" name="license-mode" value="custom">
+                                <span>Custom</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="license-batch">Batch name (optional)</label>
+                        <input id="license-batch" list="batch-list" type="text" placeholder="e.g. Reseller Batch A">
+                        <datalist id="batch-list"></datalist>
+                        <small>Keys sharing a batch name show up together under Batches for one-click management.</small>
+                    </div>
+
+                    <div id="generated-fields" class="stack">
+                        <div class="field">
+                            <label for="license-mask">Key Mask</label>
+                            <input id="license-mask" type="text" placeholder="******-******-******">
+                            <small>* = random character. Example: INDICA-****-****</small>
+                        </div>
+
+                        <div class="toggle-grid">
+                            <label class="toggle-chip">
+                                <input id="use-uppercase" type="checkbox" checked>
+                                <span>Uppercase Letters</span>
+                            </label>
+                            <label class="toggle-chip">
+                                <input id="use-lowercase" type="checkbox">
+                                <span>Lowercase Letters</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="custom-field" class="field hidden">
+                        <label for="custom-license-key">Custom License Key</label>
+                        <input id="custom-license-key" type="text" placeholder="Enter the exact key">
+                    </div>
+
+                    <div class="row-2">
+                        <div id="amount-field" class="field">
+                            <label for="license-amount">Amount</label>
+                            <input id="license-amount" type="number" min="1" max="1000" value="1">
+                            <small>Up to 1000 per batch.</small>
+                        </div>
+                        <div class="field">
+                            <label for="license-password">Password</label>
+                            <div class="gen-row">
+                                <input id="license-password" type="password" readonly placeholder="Auto-generated">
+                                <button id="gen-password-btn" class="btn sm ghost" type="button" title="Generate a new password">⟳</button>
+                            </div>
+                            <small>Auto-generated — random letters &amp; numbers. Every key gets its own unique password.</small>
+                        </div>
+                    </div>
+
+                    <div class="row-2">
+                        <div class="field">
+                            <label for="expiry-duration">Duration</label>
+                            <input id="expiry-duration" type="number" min="1" value="30">
+                        </div>
+                        <div class="field">
+                            <label for="expiry-unit">Duration Unit</label>
+                            <select id="expiry-unit">
+                                <option value="hours">Hours</option>
+                                <option value="days" selected>Days</option>
+                                <option value="months">Months</option>
+                                <option value="years">Years</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="subscription-level">Subscription Level</label>
+                        <input id="subscription-level" type="text" value="1">
+                        <small>The countdown only starts once the key is activated (HWID set).</small>
+                    </div>
+
+                    <div class="field">
+                        <label for="license-note">License Note (Optional)</label>
+                        <textarea id="license-note" placeholder="Write internal notes..."></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button id="cancel-modal-btn" class="btn ghost" type="button">Cancel</button>
+                <button id="generate-btn" class="btn primary" type="button">Create</button>
             </div>
         </section>
-    </main>
+    </div>
+
+    <!-- Confirm modal -->
+    <div id="confirm-backdrop" class="modal-backdrop hidden">
+        <section class="modal-panel" style="width: min(440px, 100%);">
+            <div class="modal-body">
+                <div class="modal-head">
+                    <div>
+                        <h2 id="confirm-title"></h2>
+                        <p id="confirm-message" style="white-space: pre-line;"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button id="confirm-cancel" class="btn ghost">Cancel</button>
+                <button id="confirm-ok" class="btn danger-solid">Confirm</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Input modal -->
+    <div id="input-backdrop" class="modal-backdrop hidden">
+        <section class="modal-panel" style="width: min(420px, 100%);">
+            <div class="modal-body">
+                <div class="modal-head">
+                    <div><h2 id="input-title"></h2></div>
+                </div>
+                <div class="field">
+                    <label id="input-label" for="input-value"></label>
+                    <input id="input-value" type="text">
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button id="input-cancel" class="btn ghost">Cancel</button>
+                <button id="input-ok" class="btn primary">Save</button>
+            </div>
+        </section>
+    </div>
+
+    <!-- Extend modal -->
+    <div id="extend-backdrop" class="modal-backdrop hidden">
+        <section class="modal-panel" style="width: min(420px, 100%);">
+            <div class="modal-body">
+                <div class="modal-head">
+                    <div>
+                        <h2 id="extend-title">Extend expiration</h2>
+                        <p>Adds time to each key's current expiry.</p>
+                    </div>
+                </div>
+                <div class="row-2">
+                    <div class="field">
+                        <label for="extend-duration">Duration</label>
+                        <input id="extend-duration" type="number" min="1" value="30">
+                    </div>
+                    <div class="field">
+                        <label for="extend-unit">Unit</label>
+                        <select id="extend-unit">
+                            <option value="hours">Hours</option>
+                            <option value="days" selected>Days</option>
+                            <option value="months">Months</option>
+                            <option value="years">Years</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-foot">
+                <button id="extend-cancel" class="btn ghost">Cancel</button>
+                <button id="extend-ok" class="btn primary">Extend</button>
+            </div>
+        </section>
+    </div>
 </body>
 </html>
