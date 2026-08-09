@@ -1227,6 +1227,18 @@
             return document.getElementById('service-role-key')?.value.trim() || ''
         }
 
+        function decodeJwtRole(token) {
+            // JWT-style Supabase keys carry a role claim; new sb_secret_ keys don't.
+            try {
+                const payload = token.split('.')[1]
+                if (!payload) return null
+                const json = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')))
+                return json.role || null
+            } catch (e) {
+                return null
+            }
+        }
+
         function ensureAdminClient() {
             const serviceRoleKey = getServiceRoleKey()
             if (!serviceRoleKey) {
@@ -1498,6 +1510,18 @@
 
         async function verifyAdminKey() {
             if (!ensureAdminClient()) return
+            const key = getServiceRoleKey()
+            // New-style Supabase secret keys (sb_secret_...) are unambiguous.
+            // JWT-style keys carry a role claim — refuse anything that isn't service_role.
+            if (!key.startsWith('sb_secret_')) {
+                const role = decodeJwtRole(key)
+                if (role && role !== 'service_role') {
+                    adminClient = null
+                    updateAdminStatus(false)
+                    showToast(`That is not a service role key (role: ${role}). Paste your service_role key to enable admin.`, 'error')
+                    return
+                }
+            }
             try {
                 const { error } = await adminClient.from('license_keys').select('count', { count: 'exact', head: true })
                 if (error) throw error
